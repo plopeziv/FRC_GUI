@@ -94,6 +94,67 @@ if excel_file is not None:
 #     MATERIAL SUMMARY CODE
         st.markdown("### Material Summary")
 
+        material_tab1, material_tab2 = st.tabs(["Material Summary", "Material Ticket Details"])
+
+        labor_data = [
+            [row.tolist()[i] for i in list_indices]
+            for row in manager.data_rows
+        ]
+        
+        with material_tab1:
+            row5 = manager.dataframe.iloc[5]
+
+            try:
+                col_index = row5[row5 == "Structure Material #"].index[0]  # column label
+                col_pos = manager.dataframe.columns.get_loc(col_index)     # numeric index
+
+            except IndexError:
+                st.write("'Structure Material #' not found in row 5")
+
+            material_summary_df = manager.dataframe.iloc[6:11, col_pos:]
+
+            material_summary_df.set_index(material_summary_df.columns[0], inplace=True)
+
+            row=material_summary_df.loc["Material Counts to Date"]
+
+            zero_columns = row[row == 0].index
+
+            df_filtered = material_summary_df.drop(columns=zero_columns)
+
+            filtered_headers = df_filtered.iloc[0].fillna("").values  # keep as 1D array
+
+            # Remove the header row from the data
+            df_filtered = df_filtered[1:]
+
+            # Assign headers
+            df_filtered.columns = filtered_headers
+
+            # Display
+            st.dataframe(df_filtered)
+
+        with material_tab2:
+            list_indices = [*range(0,9)]
+
+            material_headers = [headers[index] for index in list_indices]
+
+            material_data = [
+                [row.tolist()[index] for index in list_indices]
+                for row in manager.data_rows
+            ]
+
+            material_df = pd.DataFrame(material_data, columns=material_headers)
+
+            material_df.set_index("Ticket #", inplace=True)
+
+            material_df = material_df.drop(columns=["Type\n(Regular, Extra)", "Signed", "Labor Sell", "Labor Cost"], errors="ignore")
+            
+            material_df.index = material_df.index.astype(str).str.replace(",", "")
+
+            material_df["Date"] = material_df["Date"].dt.strftime("%m/%d/%Y")
+
+            st.dataframe(material_df)
+
+
     except Exception as e:
         st.error(f"Error loading file: {e}")
 
