@@ -21,6 +21,12 @@ if excel_file is not None:
     try:
         manager = ExcelManager(f"{cwd}/{excel_file.name}")
         manager.load()
+
+        st.success("Load Successful!")
+
+
+        data_list = [row.tolist()[:11] for row in manager.data_rows]
+        
         new_headers = []
         nan_count=1
         headers = manager.headers 
@@ -30,8 +36,7 @@ if excel_file is not None:
                 nan_count += 1
             else:
                 new_headers.append(h)
-
-        data_list = [row.tolist()[:11] for row in manager.data_rows]
+        
         df = pd.DataFrame(data_list, columns=new_headers[:11])
         df = df.loc[:, df.columns.notna()]
         df.set_index("Ticket #", inplace=True)
@@ -41,11 +46,31 @@ if excel_file is not None:
 
         df["Date"] = df["Date"].dt.strftime("%m/%d/%Y")
 
-
-        st.success("Load Successful!")
         st.markdown("### Ticket Listings")
         st.dataframe(df)
+
         st.markdown("### Labor Summary")
+
+        list_indices = [*range(0,7), *range(12,17)]
+
+        labor_headers = [headers[i] for i in list_indices]
+
+        labor_data = [
+            [row.tolist()[i] for i in list_indices]
+            for row in manager.data_rows
+        ]
+
+        labor_df = pd.DataFrame(labor_data, columns=labor_headers)
+        labor_df.set_index("Ticket #", inplace=True)
+
+        labor_df = labor_df.drop(columns=["Type\n(Regular, Extra)", "Signed"], errors="ignore")
+
+        labor_df.index = labor_df.index.astype(str).str.replace(",", "")
+
+        labor_df["Date"] = labor_df["Date"].dt.strftime("%m/%d/%Y")
+        
+        st.dataframe(labor_df)
+
         st.markdown("### Material Summary")
 
     except Exception as e:
