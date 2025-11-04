@@ -95,24 +95,25 @@ if excel_file is not None:
         st.markdown("### Material Summary")
 
         material_tab1, material_tab2 = st.tabs(["Material Summary", "Material Ticket Details"])
+
+        row5 = manager.dataframe.iloc[5]
+
+        try:
+            col_index = row5[row5 == "Structure Material #"].index[0]  # column label
+            col_pos = manager.dataframe.columns.get_loc(col_index)     # numeric index
+
+        except IndexError:
+            st.write("'Structure Material #' not found in row 5")
+
+        material_summary_df = manager.dataframe.iloc[6:12, col_pos:]
+
+        material_summary_df.set_index(material_summary_df.columns[0], inplace=True)
+
+        row=material_summary_df.loc["Material Counts to Date"]
+
+        zero_columns = row[row == 0].index
         
         with material_tab1:
-            row5 = manager.dataframe.iloc[5]
-
-            try:
-                col_index = row5[row5 == "Structure Material #"].index[0]  # column label
-                col_pos = manager.dataframe.columns.get_loc(col_index)     # numeric index
-
-            except IndexError:
-                st.write("'Structure Material #' not found in row 5")
-
-            material_summary_df = manager.dataframe.iloc[6:11, col_pos:]
-
-            material_summary_df.set_index(material_summary_df.columns[0], inplace=True)
-
-            row=material_summary_df.loc["Material Counts to Date"]
-
-            zero_columns = row[row == 0].index
 
             df_filtered = material_summary_df.drop(columns=zero_columns)
 
@@ -128,27 +129,24 @@ if excel_file is not None:
             st.dataframe(df_filtered)
 
         with material_tab2:
-            list_indices = [*range(0,9)]
+            list_indices = [*range(0, 9), *range(col_pos + 1, len(manager.dataframe.columns))]
+            test_df = manager.dataframe.iloc[13:(14 + len(manager.data_rows)), list_indices]
 
-            material_headers = [headers[index] for index in list_indices]
+            filtered_test = test_df.drop(columns=zero_columns)
+            filtered_test_headers = filtered_test.iloc[0].fillna("").values
+            filtered_test = filtered_test[1:]
+            filtered_test.columns = filtered_test_headers
 
-            material_data = [
-                [row.tolist()[index] for index in list_indices]
-                for row in manager.data_rows
-            ]
+            filtered_test = filtered_test.drop(columns=["Type\n(Regular, Extra)", "Signed", "Labor Sell", "Labor Cost"], errors="ignore") 
 
-            material_df = pd.DataFrame(material_data, columns=material_headers)
+            filtered_test.set_index("Ticket #", inplace=True)
 
-            material_df.set_index("Ticket #", inplace=True)
+            filtered_test.index = filtered_test.index.astype(str).str.replace(",", "")
 
-            material_df = material_df.drop(columns=["Type\n(Regular, Extra)", "Signed", "Labor Sell", "Labor Cost"], errors="ignore")
-            
-            material_df.index = material_df.index.astype(str).str.replace(",", "")
+            filtered_test["Date"] = pd.to_datetime(filtered_test["Date"], errors="coerce")
+            filtered_test["Date"] = filtered_test["Date"].dt.strftime("%m/%d/%Y")
 
-            material_df["Date"] = material_df["Date"].dt.strftime("%m/%d/%Y")
-
-            st.dataframe(material_df)
-
+            st.dataframe(filtered_test)
 
     except Exception as e:
         st.error(f"Error loading file: {e}")
