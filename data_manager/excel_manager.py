@@ -7,8 +7,9 @@ class ExcelManager:
         self.file_path = file_path;
         self.dataframe = None;
         self.materials = [];
+        self.headers = []
         self.data_rows = [];
-        self.header_row = 12
+        self.header_row = 13
         
     def load(self):
         if not self.file_path:
@@ -18,7 +19,11 @@ class ExcelManager:
         if not path.exists():
             raise FileNotFoundError(f"File not found: {path}")
             
-        self.dataframe = pd.read_excel(path, engine=self.get_excel_engine(), header=None)
+        raw_df = pd.read_excel(path, engine=self.get_excel_engine(), header=None)
+        
+        self.dataframe = raw_df.iloc[:, 6:]
+
+        self.get_headers()
         
         self.get_materials()
         
@@ -40,7 +45,16 @@ class ExcelManager:
             
         return engine
     
-    def get_materials(self, start_col=74, header_row = 12):
+    def get_headers(self):
+        """Extract all headers from the header row."""
+        if self.dataframe is None:
+            raise ValueError("Excel file not loaded yet. Call load() first.")
+            
+        header_values = self.dataframe.iloc[self.header_row]
+        self.headers = [str(material).strip() for material in header_values]
+        return self.headers
+    
+    def get_materials(self, start_col=74, header_row = 13):
         if self.dataframe is None:
             raise ValueError("Excel file not loaded yet. Call load() first.")
             
@@ -70,5 +84,6 @@ if __name__ =="__main__":
     df = manager.load()
     
     rows = manager.data_rows
-    print(len(manager.data_rows))
+    print(len(manager.data_rows[1]))
+    print(manager.get_materials())
         
