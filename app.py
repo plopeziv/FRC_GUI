@@ -95,11 +95,6 @@ if excel_file is not None:
         st.markdown("### Material Summary")
 
         material_tab1, material_tab2 = st.tabs(["Material Summary", "Material Ticket Details"])
-
-        labor_data = [
-            [row.tolist()[i] for i in list_indices]
-            for row in manager.data_rows
-        ]
         
         with material_tab1:
             row5 = manager.dataframe.iloc[5]
