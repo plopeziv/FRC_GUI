@@ -49,7 +49,10 @@ if excel_file is not None:
         st.markdown("### Ticket Listings")
         st.dataframe(df)
 
+#   LABOR SUMMARY CODE
         st.markdown("### Labor Summary")
+
+        labor_tab1, labor_tab2 = st.tabs(["Labor Summary", "Labor Ticket Details"])
 
         list_indices = [*range(0,7), *range(12,17)]
 
@@ -60,17 +63,35 @@ if excel_file is not None:
             for row in manager.data_rows
         ]
 
-        labor_df = pd.DataFrame(labor_data, columns=labor_headers)
-        labor_df.set_index("Ticket #", inplace=True)
+        with labor_tab1: 
+            data_slice = manager.dataframe.iloc[6:12, 11:17]
 
-        labor_df = labor_df.drop(columns=["Type\n(Regular, Extra)", "Signed"], errors="ignore")
+            labor_summary_df = pd.DataFrame(
+                data_slice
+            )
 
-        labor_df.index = labor_df.index.astype(str).str.replace(",", "")
+            new_labor_summary_header = labor_summary_df.iloc[0] #grab the first row for the header
+            labor_summary_df = labor_summary_df[1:] #take the data less the header row
+            labor_summary_df.columns = new_labor_summary_header
 
-        labor_df["Date"] = labor_df["Date"].dt.strftime("%m/%d/%Y")
-        
-        st.dataframe(labor_df)
+            labor_summary_df.set_index("Labor", inplace=True)
 
+
+            st.dataframe(labor_summary_df)
+
+        with labor_tab2:
+            labor_df = pd.DataFrame(labor_data, columns=labor_headers)
+            labor_df.set_index("Ticket #", inplace=True)
+
+            labor_df = labor_df.drop(columns=["Type\n(Regular, Extra)", "Signed"], errors="ignore")
+
+            labor_df.index = labor_df.index.astype(str).str.replace(",", "")
+
+            labor_df["Date"] = labor_df["Date"].dt.strftime("%m/%d/%Y")
+            
+            st.dataframe(labor_df)
+
+#     MATERIAL SUMMARY CODE
         st.markdown("### Material Summary")
 
     except Exception as e:
