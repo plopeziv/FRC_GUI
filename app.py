@@ -53,6 +53,27 @@ if excel_file is not None:
         with col2:
             add_row_clicked = st.button("➕ Add Row", use_container_width=True)
 
+        # --- Handle form visibility ---
+        if "show_popup" not in st.session_state:
+            st.session_state.show_popup = False
+
+        if add_row_clicked:
+            st.session_state.show_popup = not st.session_state.show_popup
+
+        # --- Popup-like expander ---
+        if st.session_state.show_popup:
+            with st.form("add_row_form"):
+                st.markdown("### Add New Row")
+
+                form_column1, form_column2, form_column3 = st.columns([5.75,1.5,1.5])
+                with form_column2:
+                    submitted = st.form_submit_button("✅ Add Row")
+                with form_column3:
+                    canceled = st.form_submit_button("❌ Cancel")
+
+                if canceled:
+                    st.session_state.show_popup = False
+
 #   LABOR SUMMARY CODE
         st.markdown("### Labor Summary")
 
