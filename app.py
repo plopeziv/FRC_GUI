@@ -49,6 +49,10 @@ if excel_file is not None:
         st.markdown("### Ticket Listings")
         st.dataframe(df)
 
+        col1, col2 = st.columns([5, 1.5])
+        with col2:
+            add_row_clicked = st.button("➕ Add Row", use_container_width=True)
+
 #   LABOR SUMMARY CODE
         st.markdown("### Labor Summary")
 
