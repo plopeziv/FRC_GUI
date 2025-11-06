@@ -65,6 +65,44 @@ if excel_file is not None:
             with st.form("add_row_form"):
                 st.markdown("### Add New Row")
 
+                st.markdown("#### Ticket Info")
+
+                row1_column1, row1_column2, row1_column3, row1_column4 = st.columns([2, 2, 2, 2])
+
+                with row1_column1:
+                    ticket_number = st.number_input("Ticket Number", min_value=0, step=1)
+
+                with row1_column2: 
+                    date_str = st.text_input("Date (MM/DD/YY)", placeholder="Select a date")
+
+                with row1_column3: 
+                    signature = st.selectbox("Signature", ["Yes", "No"])
+                
+                with row1_column4: 
+                    signature = st.selectbox("Type", ["REGULAR", "EXTRA", "MISC INSTALL"])
+
+                description = st.text_area("Description", placeholder="Enter ticket details here...")
+
+                st.markdown("#### Add Labor")
+                
+                labor_col1, labor_col2, labor_col3, labor_col4, labor_col5 = st.columns(5)
+                with labor_col1:
+                    regular_time = st.number_input("RT", min_value=0, step=1)
+                
+                with labor_col2:
+                    overtime = st.number_input("OT", min_value=0, step=1)
+
+                with labor_col3:
+                    double_time = st.number_input("DT", min_value=0, step=1)
+
+                with labor_col4:
+                    ot_dif = st.number_input("OT DIFF", min_value=0, step=1)
+
+                with labor_col5:
+                    ot_dif = st.number_input("DT DIFF", min_value=0, step=1)
+
+                st.markdown("#### Add Material")
+
                 form_column1, form_column2, form_column3 = st.columns([5.75,1.5,1.5])
                 with form_column2:
                     submitted = st.form_submit_button("✅ Add Row")
