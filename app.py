@@ -99,9 +99,27 @@ if excel_file is not None:
                     ot_dif = st.number_input("OT DIFF", min_value=0, step=1)
 
                 with labor_col5:
-                    ot_dif = st.number_input("DT DIFF", min_value=0, step=1)
+                    dt_dif = st.number_input("DT DIFF", min_value=0, step=1)
 
                 st.markdown("#### Add Material")
+
+                material_qt_col, material_col = st.columns([1,4])
+
+                with material_qt_col:
+                    material_qt = st.number_input("QT", min_value=0, step=1)
+
+                with material_col:
+                    selected_material = st.selectbox(
+                        "Select Material",
+                        options=manager.materials,
+                        help="Start typing to search..."
+                    )
+
+
+                st.write("") 
+                st.write("") 
+
+
 
                 form_column1, form_column2, form_column3 = st.columns([5.75,1.5,1.5])
                 with form_column2:
