@@ -1,7 +1,11 @@
 import streamlit as st
 
 def show_add_ticket_form(excel_manager):
+    
     with st.form("add_row_form"):
+        if "materials_to_add" not in st.session_state:
+            st.session_state.materials_to_add = []
+
         st.markdown("### Add New Row")
 
         st.markdown("#### Ticket Info")
@@ -47,7 +51,7 @@ def show_add_ticket_form(excel_manager):
 
         st.markdown("#### Add Material")
 
-        material_qt_col, material_col = st.columns([1,4])
+        material_qt_col, material_col, material_btn_col= st.columns([1,4, 1.5])
 
         with material_qt_col:
             material_qt = st.number_input("QT", min_value=0, step=1)
@@ -58,6 +62,13 @@ def show_add_ticket_form(excel_manager):
                 options= excel_manager.materials,
                 help="Start typing to search..."
             )
+        
+        with material_btn_col:
+            st.markdown('<div style="margin-top: 28px;"></div>', unsafe_allow_html=True)
+    
+            add_material = st.form_submit_button("➕ Add Material")
+            
+
 
 
         st.write("") 
@@ -73,3 +84,4 @@ def show_add_ticket_form(excel_manager):
 
         if canceled:
             st.session_state.show_popup = False
+            st.session_state.materials_to_add = []
