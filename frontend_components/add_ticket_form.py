@@ -69,8 +69,7 @@ def show_add_ticket_form(excel_manager):
 
     if add_material: 
         if material_qt > 0: 
-            st.session_state.materials_to_add.append({ "quantity": material_qt, "material": selected_material }) 
-            st.success(f"Added {material_qt} × {selected_material}") 
+            _add_or_update_material(selected_material, material_qt)
 
         else:
             st.error("Please select a quantity before adding a material.") 
@@ -99,3 +98,23 @@ def show_add_ticket_form(excel_manager):
         submitted = st.button("✅ Add Row")
     with form_column3:
         canceled = st.button("❌ Cancel")
+        if canceled:
+            st.session_state.show_popup = False
+            st.session_state.materials_to_add = []
+            st.rerun()
+
+def _add_or_update_material(material_name, quantity):
+    if "materials_to_add" not in st.session_state:
+        st.session_state.materials_to_add = []
+
+    for material in st.session_state.materials_to_add:
+        if material["material"] == material_name:
+            material["quantity"] = quantity
+            st.success(f"Updated {material_name} quantity to {material['quantity']}")
+            return
+
+    st.session_state.materials_to_add.append({
+        "material": material_name,
+        "quantity": quantity
+    })
+    st.success(f"Added {quantity} × {material_name}")
