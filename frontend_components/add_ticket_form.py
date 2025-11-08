@@ -85,7 +85,10 @@ def show_add_ticket_form(excel_manager):
             new_material_cols[2].write(material["material"])
             
             with new_material_cols[3]:
-                canceled = st.button(f"❌", key={material_index})
+                remove_material = st.button(f"❌", key={material_index}, on_click=remove_material_callback,
+                args=[material["material"]],)
+                    
+
 
 
     st.write("") 
@@ -118,3 +121,9 @@ def _add_or_update_material(material_name, quantity):
         "quantity": quantity
     })
     st.success(f"Added {quantity} × {material_name}")
+
+def remove_material_callback(material_name):
+    st.session_state.materials_to_add = [
+        m for m in st.session_state.materials_to_add
+        if m["material"] != material_name
+    ]
