@@ -67,8 +67,19 @@ def show_add_ticket_form(excel_manager):
             st.markdown('<div style="margin-top: 28px;"></div>', unsafe_allow_html=True)
     
             add_material = st.form_submit_button("➕ Add Material")
-            
 
+        if add_material and material_qt > 0: 
+            st.session_state.materials_to_add.append({ "quantity": material_qt, "material": selected_material }) 
+            st.success(f"Added {material_qt} × {selected_material}") 
+            
+            if (len(st.session_state.materials_to_add) > 0): 
+                for material_index, material in enumerate(st.session_state.materials_to_add): 
+                    new_material_cols = st.columns([1,4,1.5]) 
+                    new_material_cols[0].write(material["quantity"]) 
+                    new_material_cols[1].write(material["material"])
+                    
+                    with new_material_cols[2]:
+                        canceled = st.form_submit_button("❌ Cancel", key=material_idex)
 
 
         st.write("") 
