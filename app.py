@@ -54,14 +54,12 @@ if excel_file is not None:
         with col2:
             add_row_clicked = st.button("➕ Add Row", use_container_width=True)
 
-        # --- Handle form visibility ---
         if "show_popup" not in st.session_state:
             st.session_state.show_popup = False
 
         if add_row_clicked:
             st.session_state.show_popup = not st.session_state.show_popup
 
-        # --- Popup-like expander ---
         if st.session_state.show_popup:
             show_add_ticket_form(manager)
 

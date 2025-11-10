@@ -145,11 +145,9 @@ def show_add_ticket_form(excel_manager):
     with submit_columns[2]:
         canceled = st.button("❌ Cancel")
         if canceled:
+            reset_form_state()
             st.session_state.show_popup = False
-            st.session_state.materials_to_add = []
             st.rerun()
-
-    st.write(st.session_state.form_errors)
 
 def _add_or_update_material(material_name, quantity):
     if "materials_to_add" not in st.session_state:
@@ -199,3 +197,8 @@ def validate_labor_forms(labor_object, form_errors):
             form_errors[key] = f"{key} must be a numeric"
 
     return form_errors
+
+def reset_form_state():
+    st.session_state.materials_to_add = []
+
+    st.session_state.form_errors = {}
