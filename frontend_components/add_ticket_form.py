@@ -111,7 +111,6 @@ def show_add_ticket_form(excel_manager):
                     
 
 
-
     st.write("") 
     st.write("") 
 
@@ -139,8 +138,22 @@ def show_add_ticket_form(excel_manager):
         submitted = st.button("✅ Add Row")
 
         if submitted:
+            st.session_state.form_errors = validate_ticket_form(ticket_data)
+
             if not st.session_state.form_errors:
-                st.success("Ticket data is valid!")
+                try:
+                    excel_manager.insert_ticket(ticket_data)
+
+                    excel_manager.load()
+
+                    st.success("Ticket added and saved successfully!")
+                    
+                    reset_form_state()
+                    st.session_state.show_popup = False
+                    st.rerun()
+
+                except Exception as e:
+                    st.error(f"Failed to save ticket: {e}")
 
     with submit_columns[2]:
         canceled = st.button("❌ Cancel")

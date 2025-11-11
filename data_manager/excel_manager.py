@@ -105,9 +105,9 @@ class ExcelManager:
             return None
         
     def _insert_ticket_info(self, worksheet, ticket_row, ticket_object):
-        worksheet.cell(row=ticket_row, column=7, value=ticket_object["Date"])
+        worksheet.cell(row=ticket_row, column=7, value=pd.to_datetime(ticket_object["Date"], format="%m/%d/%y", errors="coerce"))
         worksheet.cell(row=ticket_row, column=8, value=ticket_object["Signature"])
-        worksheet.cell(row=ticket_row, column=9, value=ticket_object["Ticket Number"])
+        worksheet.cell(row=ticket_row, column=9, value=int(ticket_object["Ticket Number"]))
         worksheet.cell(row=ticket_row, column=10, value=ticket_object["Type"])
         worksheet.cell(row=ticket_row, column=11, value=ticket_object["Description"])
         
@@ -151,7 +151,7 @@ class ExcelManager:
         
     
 if __name__ =="__main__":
-    test_path = "027386 - DETAILED TICKET LISTING - PYTHON Copy Results.xlsx"
+    test_path = "027386 - DETAILED TICKET LISTING - PYTHON Copy.xlsx"
     
     manager = ExcelManager(test_path)
     

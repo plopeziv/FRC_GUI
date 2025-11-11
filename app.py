@@ -19,8 +19,9 @@ excel_file = st.file_uploader("Choose Excel File", type=["xlsx", "xls"])
 
 if excel_file is not None:
     cwd = Path.cwd()
+    file_path = f"{cwd}/{excel_file.name}"
     try:
-        manager = ExcelManager(f"{cwd}/{excel_file.name}")
+        manager = ExcelManager(file_path)
         manager.load()
 
         st.success("Load Successful!")
@@ -113,8 +114,8 @@ if excel_file is not None:
         row5 = manager.dataframe.iloc[5]
 
         try:
-            col_index = row5[row5 == "Structure Material #"].index[0]  # column label
-            col_pos = manager.dataframe.columns.get_loc(col_index)     # numeric index
+            col_index = row5[row5 == "Structure Material #"].index[0]
+            col_pos = manager.dataframe.columns.get_loc(col_index)
 
         except IndexError:
             st.write("'Structure Material #' not found in row 5")
