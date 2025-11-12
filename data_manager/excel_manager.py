@@ -55,7 +55,7 @@ class ExcelManager:
         self.headers = [str(material).strip() for material in header_values]
         return self.headers
     
-    def get_materials(self, start_col=74, header_row = 13):
+    def get_materials(self, start_col=74-6, header_row = 6):
         if self.dataframe is None:
             raise ValueError("Excel file not loaded yet. Call load() first.")
             
@@ -157,15 +157,15 @@ if __name__ =="__main__":
     
     df = manager.load()
     
-    incoming_ticket = {
-      'Ticket Number': '00001',
-      'Date': '11/10/25',
-      'Signature': 'Yes',
-      'Type': 'REGULAR',
-      'Description': 'Fixed pump housing leak',
-      'Labor': {'RT': '8', 'OT': '2', 'DT': '0', 'OT DIFF': '0.5', 'DT DIFF': '0'},
-      'Materials': [{'material': 'MAPEI PLANIPREP SC 10LB BAG', 'quantity': '3'}, {'material': 'MAPEI QUICK PATCH 25LB', 'quantity': '10'}]
-    }
+    # incoming_ticket = {
+    #   'Ticket Number': '00001',
+    #   'Date': '11/10/25',
+    #   'Signature': 'Yes',
+    #   'Type': 'REGULAR',
+    #   'Description': 'Fixed pump housing leak',
+    #   'Labor': {'RT': '8', 'OT': '2', 'DT': '0', 'OT DIFF': '0.5', 'DT DIFF': '0'},
+    #   'Materials': [{'material': 'MAPEI PLANIPREP SC 10LB BAG', 'quantity': '3'}, {'material': 'MAPEI QUICK PATCH 25LB', 'quantity': '10'}]
+    # }
     
-    manager.insert_ticket(incoming_ticket)
+    # manager.insert_ticket(incoming_ticket)
         

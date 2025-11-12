@@ -142,11 +142,16 @@ def show_add_ticket_form(excel_manager):
 
             if not st.session_state.form_errors:
                 try:
-                    excel_manager.insert_ticket(ticket_data)
-
-                    excel_manager.load()
+                    with st.spinner("Saving ticket..."):
+                        excel_manager.insert_ticket(ticket_data)
+                        excel_manager.load()
 
                     st.success("Ticket added and saved successfully!")
+                    # excel_manager.insert_ticket(ticket_data)
+
+                    # excel_manager.load()
+
+                    # st.success("Ticket added and saved successfully!")
                     
                     reset_form_state()
                     st.session_state.show_popup = False

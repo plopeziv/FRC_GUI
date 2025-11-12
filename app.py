@@ -27,30 +27,14 @@ if excel_file is not None:
 
         st.success("Load Successful!")
 
+        ticket_data_service = TicketDataService(file_path)
 
-        data_list = [row.tolist()[:11] for row in manager.data_rows]
-        
-        new_headers = []
-        nan_count=1
-        headers = manager.headers 
-        for h in headers:
-            if h == 'nan':
-                new_headers.append(f"nan_{nan_count}")
-                nan_count += 1
-            else:
-                new_headers.append(h)
-        
-        df = pd.DataFrame(data_list, columns=new_headers[:11])
-        df = df.loc[:, df.columns.notna()]
-        df.set_index("Ticket #", inplace=True)
-        df = df.drop(columns=["Type\n(Regular, Extra)"], errors="ignore")
-
-        df.index = df.index.astype(str).str.replace(",", "")
-
-        df["Date"] = df["Date"].dt.strftime("%m/%d/%Y")
 
         st.markdown("### Ticket Listings")
-        st.dataframe(df)
+        ticket_listing_df = ticket_data_service.ticket_listing
+
+        ticket_listing_df.index = ticket_listing_df.index.astype(str).str.replace(",", "")
+        st.dataframe(ticket_listing_df)
 
         col1, col2 = st.columns([5, 1.5])
         with col2:
@@ -67,8 +51,6 @@ if excel_file is not None:
 
 #   LABOR SUMMARY CODE
         st.markdown("### Labor Summary")
-
-        ticket_data_service = TicketDataService(file_path)
 
         labor_tab1, labor_tab2 = st.tabs(["Labor Summary", "Labor Ticket Details"])
 
