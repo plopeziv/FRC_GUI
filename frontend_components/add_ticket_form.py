@@ -26,7 +26,7 @@ def show_add_ticket_form(excel_manager):
             st.error(st.session_state.form_errors["Work Date"]) 
 
     with ticket_info_columns[2]: 
-        signature = st.selectbox("Signature", ["Yes", "No"])
+        signature = st.selectbox("Signature", ["YES", "NO"])
     
     with ticket_info_columns[3]: 
         ticket_type = st.selectbox("Type", ["REGULAR", "EXTRA", "MISC INSTALL"])

@@ -1,4 +1,6 @@
-from excel_manager import ExcelManager
+import pandas as pd
+from data_manager.excel_manager import ExcelManager
+# from excel_manager import ExcelManager
 
 class TicketDataService:
     def __init__(self, file_path=None):
@@ -67,6 +69,8 @@ class TicketDataService:
         df.set_index("Ticket #", inplace=True)
         
         df = df.drop(columns=df.loc[:, "Material Sell":"Total Cost"].columns)
+
+        df["Date"] = pd.to_datetime(df["Date"], errors="coerce").dt.strftime("%m/%d/%Y")
         
         self.labor_ticket_summary = df
 
