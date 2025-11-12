@@ -1,6 +1,6 @@
 import pandas as pd
-# from data_manager.excel_manager import ExcelManager
-from excel_manager import ExcelManager
+from data_manager.excel_manager import ExcelManager
+# from excel_manager import ExcelManager
 
 class TicketDataService:
     def __init__(self, file_path=None):
@@ -11,12 +11,15 @@ class TicketDataService:
         
         self.material_summary = None
         self.material_ticket_summary = None
+        
+        self.ticket_listing = None
 
         self.excel_manager = ExcelManager(self.file_path)
         
         self.excel_manager.load()
         self.build_labor_data()
         self.build_material_data()
+        self.build_ticket_listing()
         
     def build_labor_data(self):
         self._build_labor_summary()
@@ -151,6 +154,8 @@ class TicketDataService:
         
         material_ticket_df = self._create_material_ticket_headers(material_ticket_df, col_pos, start_pos)
         
+        material_ticket_df["Date"] = pd.to_datetime(material_ticket_df["Date"], errors="coerce").dt.strftime("%m/%d/%Y")
+        
         
         return material_ticket_df
         
@@ -165,6 +170,14 @@ class TicketDataService:
         df.set_index("Ticket #", inplace=True)
         
         return df
+    
+    def build_ticket_listing(self):
+        self.ticket_listing = self.labor_ticket_summary.loc[:, : "Labor Cost"]
+        
+        self.ticket_listing[["Material Sell", "Material Cost"]] = self.material_ticket_summary[["Material Sell", "Material Cost"]]
+        
+        self.ticket_listing["Total Sell"] = self.ticket_listing["Labor Sell"] + self.ticket_listing["Material Sell"]
+        self.ticket_listing["Total Cost"] = self.ticket_listing["Labor Cost"] + self.ticket_listing["Material Cost"]
         
         
 
@@ -175,16 +188,8 @@ if __name__ == "__main__":
     
     manager = TicketDataService(test_path)
     
-    material_summary, material_ticket_summary = manager.build_material_data()
-    
-    # material_ticket_summary = material_ticket_summary.loc[:, first_item:]
-    
-    # numeric_slice = material_ticket_summary.apply(pd.to_numeric, errors='coerce')
-    
-    # numeric_totals = numeric_slice.sum()
-    
-    # material_summary.loc["Material Counts to Date", numeric_totals.index] = numeric_totals.values
+    df1 = manager.labor_ticket_summary
+    df2 = manager.material_ticket_summary
+    df3 = manager.ticket_listing
     
     
-    
-    # sum_of_material_categories = material_tikcet_df.loc[:, "RT":].sum().to_numpy()
