@@ -18,13 +18,9 @@ def show_add_ticket_form(excel_manager):
 
     with ticket_info_columns[0]:
         ticket_number = st.text_input("Ticket Number", placeholder="0")
-        if "Ticket Number" in st.session_state.form_errors:
-            st.error(st.session_state.form_errors["Ticket Number"]) 
 
     with ticket_info_columns[1]: 
         date_str = st.text_input("Date (MM/DD/YY)", placeholder="Select a date")
-        if "Work Date" in st.session_state.form_errors:
-            st.error(st.session_state.form_errors["Work Date"]) 
 
     with ticket_info_columns[2]: 
         signature = st.selectbox("Signature", ["YES", "NO"])
@@ -39,28 +35,18 @@ def show_add_ticket_form(excel_manager):
     labor_columns = st.columns(5)
     with labor_columns[0]:
         regular_time = st.text_input("RT", placeholder="0")
-        if "RT" in st.session_state.form_errors:
-            st.error(st.session_state.form_errors["RT"]) 
     
     with labor_columns[1]:
         overtime = st.text_input("OT", placeholder="0")
-        if "OT" in st.session_state.form_errors:
-            st.error(st.session_state.form_errors["OT"]) 
 
     with labor_columns[2]:
         double_time = st.text_input("DT", placeholder="0")
-        if "DT" in st.session_state.form_errors:
-            st.error(st.session_state.form_errors["DT"]) 
 
     with labor_columns[3]:
         ot_dif = st.text_input("OT DIFF", placeholder="0")
-        if "OT DIFF" in st.session_state.form_errors:
-            st.error(st.session_state.form_errors["OT DIFF"]) 
 
     with labor_columns[4]:
         dt_dif = st.text_input("DT DIFF", placeholder="0")
-        if "DT DIFF" in st.session_state.form_errors:
-            st.error(st.session_state.form_errors["DT DIFF"]) 
 
     st.markdown("#### Add Material")
 
@@ -142,7 +128,6 @@ def show_add_ticket_form(excel_manager):
             "Materials": st.session_state.materials_to_add
         }
 
-        # Validate
         st.session_state.form_errors = validate_ticket_form(ticket_data)
 
         if not st.session_state.form_errors:
@@ -161,6 +146,9 @@ def show_add_ticket_form(excel_manager):
 
             except Exception as e:
                 st.error(f"❌ Failed to save ticket: {e}")
+        else:
+            for field, message in st.session_state.form_errors.items():
+                st.error(f"{field}: {message}")
 
     if canceled:
         reset_form_state()
