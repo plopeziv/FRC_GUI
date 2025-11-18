@@ -10,9 +10,6 @@ def show_add_ticket_form(excel_manager):
     if "form_errors" not in st.session_state:
         st.session_state.form_errors = {}
 
-    if "pending_ticket_data" in st.session_state:
-        ste.session_state.form_errors = validate_ticket_form(st.session_state.pending_ticket_data)
-
     st.markdown("### Add New Row")
 
     st.markdown("#### Ticket Info")
