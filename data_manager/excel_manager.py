@@ -47,13 +47,30 @@ class ExcelManager:
         return engine
     
     def get_headers(self):
-        """Extract all headers from the header row."""
+        """Extract all headers, combining two different rows for different column ranges."""
         if self.dataframe is None:
             raise ValueError("Excel file not loaded yet. Call load() first.")
             
         header_values = self.dataframe.iloc[self.header_row]
-        self.headers = [str(material).strip() for material in header_values]
+        switch_col = None
+        for idx, val in enumerate(header_values):
+            if str(val).strip().upper() == "DT DIFF":
+                switch_col = idx + 1  # include 'DT DIFF' itself
+                break
+        
+        if switch_col is None:
+            raise ValueError("'DT DIFF' not found in main header row.")
+        
+        # First part: columns 0–16 from the main header row
+        main_headers = self.dataframe.iloc[self.header_row, :switch_col]
+        
+        # Second part: columns 17 onward from row 5
+        additional_headers = self.dataframe.iloc[6, switch_col:]
+        
+        self.headers = [str(h).strip() for h in list(main_headers) + list(additional_headers)]
+    
         return self.headers
+
     
     def get_materials(self, start_col=74-6, header_row = 6):
         if self.dataframe is None:
