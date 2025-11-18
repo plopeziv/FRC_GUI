@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 import re
 
 def show_add_ticket_form(excel_manager):
@@ -8,6 +9,9 @@ def show_add_ticket_form(excel_manager):
 
     if "form_errors" not in st.session_state:
         st.session_state.form_errors = {}
+
+    if "pending_ticket_data" in st.session_state:
+        ste.session_state.form_errors = validate_ticket_form(st.session_state.pending_ticket_data)
 
     st.markdown("### Add New Row")
 
@@ -115,57 +119,56 @@ def show_add_ticket_form(excel_manager):
     st.write("") 
 
 
-    ticket_data = {
-        "Ticket Number": ticket_number.strip(),
-        "Date": date_str.strip(),
-        "Signature": signature,
-        "Type": ticket_type,
-        "Description": description.strip(),
-        "Labor": {
-            "RT": regular_time.strip(),
-            "OT": overtime.strip(),
-            "DT": double_time.strip(),
-            "OT DIFF": ot_dif.strip(),
-            "DT DIFF": dt_dif.strip(),
-        },
-        "Materials": st.session_state.materials_to_add
-    }
-
-    st.session_state.form_errors = validate_ticket_form(ticket_data)
-
     submit_columns = st.columns([5.75,1.5,1.5])
+
     with submit_columns[1]:
-        submitted = st.button("✅ Add Row")
-
-        if submitted:
-            st.session_state.form_errors = validate_ticket_form(ticket_data)
-
-            if not st.session_state.form_errors:
-                try:
-                    with st.spinner("Saving ticket..."):
-                        excel_manager.insert_ticket(ticket_data)
-                        excel_manager.load()
-
-                    st.success("Ticket added and saved successfully!")
-                    # excel_manager.insert_ticket(ticket_data)
-
-                    # excel_manager.load()
-
-                    # st.success("Ticket added and saved successfully!")
-                    
-                    reset_form_state()
-                    st.session_state.show_popup = False
-                    st.rerun()
-
-                except Exception as e:
-                    st.error(f"Failed to save ticket: {e}")
+        submitted = st.button("✅ Add Row", key="submit_btn")
 
     with submit_columns[2]:
-        canceled = st.button("❌ Cancel")
-        if canceled:
-            reset_form_state()
-            st.session_state.show_popup = False
-            st.rerun()
+        canceled = st.button("❌ Cancel", key="cancel_btn")
+    
+    if submitted:
+
+        ticket_data = {
+            "Ticket Number": ticket_number.strip(),
+            "Date": date_str.strip(),
+            "Signature": signature,
+            "Type": ticket_type,
+            "Description": description.strip(),
+            "Labor": {
+                "RT": regular_time.strip(),
+                "OT": overtime.strip(),
+                "DT": double_time.strip(),
+                "OT DIFF": ot_dif.strip(),
+                "DT DIFF": dt_dif.strip(),
+            },
+            "Materials": st.session_state.materials_to_add
+        }
+
+        # Validate
+        st.session_state.form_errors = validate_ticket_form(ticket_data)
+
+        if not st.session_state.form_errors:
+            try:
+                with st.spinner("💾 Saving ticket..."):
+                    excel_manager.insert_ticket(ticket_data)
+                    excel_manager.load()
+
+                st.success("✅ Ticket added and saved successfully!")
+
+                time.sleep(0.8)
+                
+                reset_form_state()
+                st.session_state.show_popup = False
+                st.rerun()
+
+            except Exception as e:
+                st.error(f"❌ Failed to save ticket: {e}")
+
+    if canceled:
+        reset_form_state()
+        st.session_state.show_popup = False
+        st.rerun()
 
 def _add_or_update_material(material_name, quantity):
     if "materials_to_add" not in st.session_state:
