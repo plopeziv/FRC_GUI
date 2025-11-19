@@ -16,6 +16,8 @@ from data_manager.excel_manager import ExcelManager
 from data_manager.ticket_data_service import TicketDataService
 from frontend_components.add_ticket_form import show_add_ticket_form
 
+st.set_page_config(page_title="FRC Ticket GUI")
+
 st.title("FRC Ticket GUI")
 st.write("Select Your FRC Ticket Listing Excel")
 
@@ -91,7 +93,3 @@ else: st.info("Please select a file to get started")
 
 def open_browser():
     webbrowser.open("http://localhost:8501")
-
-if __name__ == "__main__":
-    import streamlit as st
-    st.set_page_config(page_title="FRC Ticket GUI")
