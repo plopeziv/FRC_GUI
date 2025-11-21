@@ -1,7 +1,4 @@
-import pandas as pd
 from pathlib import Path
-from openpyxl import load_workbook
- 
 
 class ExcelManager: 
     def __init__(self, file_path=None):
@@ -13,6 +10,8 @@ class ExcelManager:
         self.header_row = 13
         
     def load(self):
+        import pandas as pd
+
         if not self.file_path:
             raise ValueError("No file provided!")
             
@@ -73,6 +72,7 @@ class ExcelManager:
 
     
     def get_materials(self, start_col=74-6, header_row = 6):
+        import pandas as pd
         if self.dataframe is None:
             raise ValueError("Excel file not loaded yet. Call load() first.")
             
@@ -95,6 +95,8 @@ class ExcelManager:
         return not any(bool(cell) for cell in row.fillna(0))
     
     def insert_ticket (self, frc_ticket):
+        from openpyxl import load_workbook
+
         path = self.ensure_xlsx_copy(self.file_path)
         ticket_data = frc_ticket
         
@@ -122,6 +124,7 @@ class ExcelManager:
             return None
         
     def _insert_ticket_info(self, worksheet, ticket_row, ticket_object):
+        import pandas as pd
         worksheet.cell(row=ticket_row, column=7, value=pd.to_datetime(ticket_object["Date"], format="%m/%d/%y", errors="coerce"))
         worksheet.cell(row=ticket_row, column=8, value=ticket_object["Signature"])
         worksheet.cell(row=ticket_row, column=9, value=int(ticket_object["Ticket Number"]))
@@ -155,6 +158,8 @@ class ExcelManager:
         If the working copy path is .xls, convert it to .xlsx for openpyxl.
         Returns the new path (string) compatible with openpyxl.
         """
+        import pandas as pd
+
         path = Path(path)
         if path.suffix.lower() == ".xls":
             new_path = path.with_suffix(".xlsx")  # keep _test in the name already
