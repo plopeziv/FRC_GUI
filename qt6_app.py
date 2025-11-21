@@ -13,10 +13,6 @@ from qtpy.QtWidgets import (
 )
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QFont
-import pandas as pd
-
-from data_manager.excel_manager import ExcelManager
-from data_manager.ticket_data_service import TicketDataService
 
 
 class InlineCompleterLineEdit(QLineEdit):
@@ -513,6 +509,9 @@ class FRCTicketGUI(QMainWindow):
     
     def load_data(self):
         """Load data from selected Excel file"""
+        from data_manager.excel_manager import ExcelManager
+        from data_manager.ticket_data_service import TicketDataService
+
         try:
             # Load with ExcelManager
             self.manager = ExcelManager(self.file_path)
