@@ -110,26 +110,10 @@ class AddTicketDialog(QDialog):
         self.signature = QComboBox()
         self.signature.addItems(["YES", "NO"])
         ticket_form.addRow("Signature:", self.signature)
-        self.signature.setStyleSheet("""
-                QComboBox {
-                    color: white;
-                }
-                QComboBox QListView {
-                    color: white;
-                }
-            """)
         
         self.ticket_type = QComboBox()
         self.ticket_type.addItems(["REGULAR", "EXTRA", "MISC INSTALL"])
         ticket_form.addRow("Type:", self.ticket_type)
-        self.ticket_type.setStyleSheet("""
-                QComboBox {
-                    color: white;
-                }
-                QComboBox QListView {
-                    color: white;
-                }
-            """)
         
         self.description = QTextEdit()
         self.description.setPlaceholderText("Enter ticket details here...")
