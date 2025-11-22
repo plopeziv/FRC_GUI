@@ -81,6 +81,8 @@ class TicketDataService:
         df = df.drop(columns=df.loc[:, "Material Sell":"Total Cost"].columns)
 
         df["Date"] = pd.to_datetime(df["Date"], errors="coerce").dt.strftime("%m/%d/%Y")
+
+        df = df[df.index.notnull()]
         
         self.labor_ticket_summary = df
         
@@ -154,8 +156,9 @@ class TicketDataService:
         
         material_ticket_df = self._create_material_ticket_headers(material_ticket_df, col_pos, start_pos)
         
-        material_ticket_df["Date"] = pd.to_datetime(material_ticket_df["Date"], errors="coerce").dt.strftime("%m/%d/%Y")
+        material_ticket_df = material_ticket_df[material_ticket_df.index.notnull()]
         
+        material_ticket_df["Date"] = pd.to_datetime(material_ticket_df["Date"], errors="coerce").dt.strftime("%m/%d/%Y")
         
         return material_ticket_df
         
