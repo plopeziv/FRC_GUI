@@ -179,7 +179,7 @@ class AddTicketDialog(QDialog):
         
         material_input_layout.addWidget(QLabel("Material:"))
 
-        # NEW:
+        # Inline Completion
         self.material_input = InlineCompleterLineEdit(self.excel_manager.materials)
         self.material_input.setPlaceholderText("Start typing material...")
         self.material_input.setMinimumWidth(300)
@@ -210,6 +210,17 @@ class AddTicketDialog(QDialog):
 
         self.materials_list.setSelectionMode(QListWidget.SingleSelection)
         main_layout.addWidget(self.materials_list)
+
+        # Output Folder Picker
+        self.folder_label = QLabel("No folder selected")
+        self.folder_label.setStyleSheet("color: gray;")
+        main_layout.addWidget(self.folder_label)
+
+        self.folder_btn = QPushButton("Select Output Folder")
+        self.folder_btn.clicked.connect(self.select_output_folder)
+        main_layout.addWidget(self.folder_btn)
+
+        self.selected_folder_path = None
         
         # Buttons
         button_layout = QHBoxLayout()
@@ -316,6 +327,15 @@ class AddTicketDialog(QDialog):
         QMessageBox.information(self, "Removed", f"Removed '{material_name}'")
         
         self.material_input.clear()
+
+    def select_output_folder(self):
+        """Open a folder picker and store the selected directory"""
+        folder = QFileDialog.getExistingDirectory(self, "Select Output Folder")
+
+        if folder:
+            self.selected_folder_path = folder
+            self.folder_label.setText(f"Folder: {folder}")
+            self.folder_label.setStyleSheet("color: black; font-weight: bold;")
     
     def validate_form(self, ticket_data):
         """Validate form data"""
@@ -346,7 +366,15 @@ class AddTicketDialog(QDialog):
         return errors
     
     def submit_form(self):
-        """Submit the form"""
+        # Check if Output Folder has been selected
+        if not self.selected_folder_path:
+            QMessageBox.warning(
+                self,
+                "Missing Output Folder",
+                "Please select an output folder before submitting the ticket."
+            )
+            return
+
         ticket_data = {
             'Job Number': self.excel_manager.job_number,
             'Job Name': self.excel_manager.job_name,
