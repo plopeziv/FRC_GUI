@@ -70,6 +70,8 @@ class ETicketCreator:
         ws['B4'] = self.incoming_ticket["Job Number"]
         ws['B5'] = self.incoming_ticket["Job Name"]
         ws['B6'] = self.incoming_ticket["Job Address"]
+        ws['B7'] = self.incoming_ticket["Installers"]
+        ws['B8'] = self.incoming_ticket["Work Location"]
         
         ws['H4']= self.incoming_ticket["Ticket Number"]
         ws['H5']= pd.to_datetime(datetime.today(), format="%m/%d/%y", errors="coerce")
@@ -113,6 +115,8 @@ if __name__ =="__main__":
       'Date': '11/10/25',
       'Signature': 'Yes',
       'Type': 'REGULAR',
+      'Installers': 'Juan',
+      'Work Location': '35TH FLR',
       'Description': 'Fixed pump housing leak',
       'Labor': {'RT': '8', 'OT': '2', 'DT': '0', 'OT DIFF': '0.5', 'DT DIFF': '0'},
       'Materials': [

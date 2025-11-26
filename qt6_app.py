@@ -115,6 +115,14 @@ class AddTicketDialog(QDialog):
         self.ticket_type.addItems(["REGULAR", "EXTRA", "MISC INSTALL"])
         ticket_form.addRow("Type:", self.ticket_type)
         
+        self.installer_input = QLineEdit()
+        self.installer_input.setPlaceholderText("Insert Installers' Names")
+        ticket_form.addRow("Installers:", self.installer_input)
+        
+        self.work_location = QLineEdit()
+        self.work_location.setPlaceholderText("Insert Work Location")
+        ticket_form.addRow("Work Location:", self.work_location)
+        
         self.description = QTextEdit()
         self.description.setPlaceholderText("Enter ticket details here...")
         self.description.setMaximumHeight(100)
@@ -347,6 +355,8 @@ class AddTicketDialog(QDialog):
             "Date": self.date_input.text().strip(),
             "Signature": self.signature.currentText(),
             "Type": self.ticket_type.currentText(),
+            'Installers': self.installer_input,
+            'Work Location': self.work_location,
             "Description": self.description.toPlainText().strip(),
             "Labor": {
                 "RT": self.rt_input.text().strip(),
