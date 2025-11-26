@@ -340,7 +340,10 @@ class AddTicketDialog(QDialog):
     def submit_form(self):
         """Submit the form"""
         ticket_data = {
+            'Job Number': self.excel_manager.job_number,
+            'Job Name': self.excel_manager.job_name,
             "Ticket Number": self.ticket_number.text().strip(),
+            'Job Address': self.excel_manager.job_address,
             "Date": self.date_input.text().strip(),
             "Signature": self.signature.currentText(),
             "Type": self.ticket_type.currentText(),

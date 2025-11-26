@@ -1,8 +1,14 @@
+import pandas as pd
 from pathlib import Path
+from openpyxl import load_workbook
+ 
 
 class ExcelManager: 
     def __init__(self, file_path=None):
         self.file_path = file_path;
+        self.job_number = None
+        self.job_name = None
+        self.job_address = None
         self.dataframe = None;
         self.materials = [];
         self.headers = []
@@ -10,8 +16,6 @@ class ExcelManager:
         self.header_row = 13
         
     def load(self):
-        import pandas as pd
-
         if not self.file_path:
             raise ValueError("No file provided!")
             
@@ -22,6 +26,10 @@ class ExcelManager:
         raw_df = pd.read_excel(path, engine=self.get_excel_engine(), header=None)
         
         self.dataframe = raw_df.iloc[:, 6:]
+        
+        self.job_number = self.dataframe.iloc[1,8]
+        self.job_name = self.dataframe.iloc[2,8]
+        self. job_address = self.dataframe.iloc[3,8]
 
         self.get_headers()
         
@@ -46,33 +54,15 @@ class ExcelManager:
         return engine
     
     def get_headers(self):
-        """Extract all headers, combining two different rows for different column ranges."""
+        """Extract all headers from the header row."""
         if self.dataframe is None:
             raise ValueError("Excel file not loaded yet. Call load() first.")
             
         header_values = self.dataframe.iloc[self.header_row]
-        switch_col = None
-        for idx, val in enumerate(header_values):
-            if str(val).strip().upper() == "DT DIFF":
-                switch_col = idx + 1  # include 'DT DIFF' itself
-                break
-        
-        if switch_col is None:
-            raise ValueError("'DT DIFF' not found in main header row.")
-        
-        # First part: columns 0–16 from the main header row
-        main_headers = self.dataframe.iloc[self.header_row, :switch_col]
-        
-        # Second part: columns 17 onward from row 5
-        additional_headers = self.dataframe.iloc[6, switch_col:]
-        
-        self.headers = [str(h).strip() for h in list(main_headers) + list(additional_headers)]
-    
+        self.headers = [str(material).strip() for material in header_values]
         return self.headers
-
     
-    def get_materials(self, start_col=74-6, header_row = 6):
-        import pandas as pd
+    def get_materials(self, start_col=74, header_row = 13):
         if self.dataframe is None:
             raise ValueError("Excel file not loaded yet. Call load() first.")
             
@@ -95,8 +85,6 @@ class ExcelManager:
         return not any(bool(cell) for cell in row.fillna(0))
     
     def insert_ticket (self, frc_ticket):
-        from openpyxl import load_workbook
-
         path = self.ensure_xlsx_copy(self.file_path)
         ticket_data = frc_ticket
         
@@ -124,10 +112,9 @@ class ExcelManager:
             return None
         
     def _insert_ticket_info(self, worksheet, ticket_row, ticket_object):
-        import pandas as pd
-        worksheet.cell(row=ticket_row, column=7, value=pd.to_datetime(ticket_object["Date"], format="%m/%d/%y", errors="coerce"))
+        worksheet.cell(row=ticket_row, column=7, value=ticket_object["Date"])
         worksheet.cell(row=ticket_row, column=8, value=ticket_object["Signature"])
-        worksheet.cell(row=ticket_row, column=9, value=int(ticket_object["Ticket Number"]))
+        worksheet.cell(row=ticket_row, column=9, value=ticket_object["Ticket Number"])
         worksheet.cell(row=ticket_row, column=10, value=ticket_object["Type"])
         worksheet.cell(row=ticket_row, column=11, value=ticket_object["Description"])
         
@@ -158,11 +145,9 @@ class ExcelManager:
         If the working copy path is .xls, convert it to .xlsx for openpyxl.
         Returns the new path (string) compatible with openpyxl.
         """
-        import pandas as pd
-
         path = Path(path)
         if path.suffix.lower() == ".xls":
-            new_path = path.with_suffix(".xlsx")  # keep _test in the name already
+            new_path = path.with_suffix(".xlsx")
             if not new_path.exists():
                 print(f"⚙️ Converting {path.name} → {new_path.name}")
                 df = pd.read_excel(path, engine="xlrd", header=None)
@@ -179,15 +164,27 @@ if __name__ =="__main__":
     
     df = manager.load()
     
-    # incoming_ticket = {
-    #   'Ticket Number': '00001',
-    #   'Date': '11/10/25',
-    #   'Signature': 'Yes',
-    #   'Type': 'REGULAR',
-    #   'Description': 'Fixed pump housing leak',
-    #   'Labor': {'RT': '8', 'OT': '2', 'DT': '0', 'OT DIFF': '0.5', 'DT DIFF': '0'},
-    #   'Materials': [{'material': 'MAPEI PLANIPREP SC 10LB BAG', 'quantity': '3'}, {'material': 'MAPEI QUICK PATCH 25LB', 'quantity': '10'}]
-    # }
+    incoming_ticket = {
+      'Job Number': '123456',
+      'Job Name': 'Test Job',
+      'Ticket Number': '00001',
+      'Job Address': '1234 Fake Street',
+      'Date': '11/10/25',
+      'Signature': 'Yes',
+      'Type': 'REGULAR',
+      'Description': 'Fixed pump housing leak',
+      'Labor': {'RT': '8', 'OT': '2', 'DT': '0', 'OT DIFF': '0.5', 'DT DIFF': '0'},
+      'Materials': [
+          {
+              'material': 'MAPEI PLANIPREP SC 10LB BAG', 
+              'quantity': '3'
+          }, 
+          {
+              'material': 'MAPEI QUICK PATCH 25LB', 
+              'quantity': '10'
+          }
+     ]
+    }
     
-    # manager.insert_ticket(incoming_ticket)
+    manager.insert_ticket(incoming_ticket)
         

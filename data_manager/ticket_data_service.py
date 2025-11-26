@@ -17,6 +17,10 @@ class TicketDataService:
         self.excel_manager = ExcelManager(self.file_path)
         
         self.excel_manager.load()
+        self.job_number = self.excel_manager.job_number
+        self.job_name = self.excel_manager.job_name
+        self.job_address = self.excel_manager.job_address
+        
         self.build_labor_data()
         self.build_material_data()
         self.build_ticket_listing()
