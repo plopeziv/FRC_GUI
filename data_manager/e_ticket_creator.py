@@ -13,7 +13,6 @@ class ETicketCreator:
         self.incoming_ticket = incoming_ticket;
         
     def load_ticket(self):
-        import pandas as pd
         from openpyxl import load_workbook
         
         if not self.file_path:
@@ -25,11 +24,13 @@ class ETicketCreator:
         
         path = self._ensure_xlsx_copy()
         wb = load_workbook(path)
+        ws = wb.active
         
-        # raw_df = pd.read_excel(path, engine=self._get_excel_engine(), header=None)
-        raw_df = self._insert_job_info(wb)
+        self._insert_job_info(ws)
+        self._insert_labor(ws)
         
-        return raw_df
+        wb.save(f"{self.incoming_ticket['Job Number']} - {self.incoming_ticket['Ticket Number']}.xlsx")
+        
     
     def _ensure_xlsx_copy(self):
         """
@@ -62,10 +63,9 @@ class ETicketCreator:
             
         return engine
     
-    def _insert_job_info(self, workbook):
+    def _insert_job_info(self, ws):
         from datetime import datetime
         import pandas as pd
-        ws = workbook.active
         
         ws['B4'] = self.incoming_ticket["Job Number"]
         ws['B5'] = self.incoming_ticket["Job Name"]
@@ -80,21 +80,70 @@ class ETicketCreator:
         
         ws['B10']= self.incoming_ticket["Description"]
         
-        data = ws.values
-        df = pd.DataFrame(data)
+    def _insert_labor(self, ws):
+        labor_object = self.incoming_ticket["Labor"]
         
-        workbook.save(f"{self.incoming_ticket['Job Number']} - {self.incoming_ticket['Ticket Number']}.xlsx")
-        return df
+        category_map = {
+        "RT": "REGULAR TIME",
+        "OT": "OVERTIME",
+        "DT": "DOUBLE TIME",
+        "OT DIFF": "OVERTIME DIFF",
+        "DT DIFF": "DOUBLE TIME DIFF",
+        }
+        
+        # Keep only catagories with hours > 0 and translate their keys
+        active_labor = {
+            category_map[k]: v for k, v 
+            in labor_object.items()
+            if float(v["hours"]) > 0}
+        
+        iterator = iter(active_labor)
+        first_key = next(iterator)
+        
+        # Write first labor entry into row 17
+        ws['B17'] = round(float(active_labor[first_key]["hours"]), 1)
+        ws['C17'] = first_key
+        ws['F17'] = round(float(active_labor[first_key]["rate"]),2)
+        ws['I17'] = round(
+            float(active_labor[first_key]["hours"]) * float(active_labor[first_key]["rate"]), 2
+        )
+        
+        # Insert Additional Labor Rows
+        current_row = 17
+        for key in iterator:
+           current_row += 1
+           ws.insert_rows(current_row)
+           
+           self._copy_and_insert_row(ws, 17, current_row)
+           
+           ws.merge_cells(start_row=current_row, end_row=current_row, 
+                          start_column=3, end_column=4)
+           
+           ws[f'B{current_row}'] = round(float(active_labor[key]["hours"]), 1)
+           ws[f'C{current_row}'] = key
+           ws[f'F{current_row}'] = round(float(active_labor[key]["rate"]),2)
+           ws[f'I{current_row}'] = round(
+               float(active_labor[key]["hours"]) * float(active_labor[key]["rate"]), 2
+           )
+        
+        
+    def _copy_and_insert_row(self, worksheet, src_row, dest_row, max_col=9):
+        from copy import copy
+        
+        for col in range(1, max_col+1):
+            src_cell = worksheet.cell(row=src_row, column=col)
+            dest_cell = worksheet.cell(row=dest_row, column=col)
+            
+            dest_cell.value = src_cell.value
+            
+            if src_cell.has_style:
+                dest_cell.font = copy(src_cell.font)
+                dest_cell.border = copy(src_cell.border)
+                dest_cell.fill = copy(src_cell.fill)
+                dest_cell.number_format = src_cell.number_format
+                dest_cell.protection = copy(src_cell.protection)
+                dest_cell.alignment = copy(src_cell.alignment)
     
-    def write_merged_safe(ws, row, col, value):
-        # Check merged ranges
-        for merged_range in ws.merged_cells.ranges:
-            if ws.cell(row=row, column=col).coordinate in merged_range:
-                # Redirect to the top-left of the merged range
-                row, col = merged_range.min_row, merged_range.min_col
-                break
-        ws.cell(row=row, column=col).value = value
-        
         
         
         
@@ -110,7 +159,7 @@ if __name__ =="__main__":
     incoming_ticket = {
       'Job Number': '123456',
       'Job Name': 'Test Job',
-      'Ticket Number': '00001',
+      'Ticket Number': '00003',
       'Job Address': '1234 Fake Street',
       'Date': '11/10/25',
       'Signature': 'Yes',
@@ -118,7 +167,13 @@ if __name__ =="__main__":
       'Installers': 'Juan',
       'Work Location': '35TH FLR',
       'Description': 'Fixed pump housing leak',
-      'Labor': {'RT': '8', 'OT': '2', 'DT': '0', 'OT DIFF': '0.5', 'DT DIFF': '0'},
+      'Labor': {
+          'RT': {'hours':'8', 'rate': '157.15'}, 
+          'OT': {'hours':'2', 'rate': '197.70'}, 
+          'DT': {'hours':'0', 'rate': '237.72'}, 
+          'OT DIFF': {'hours':'0.5', 'rate':'40.55'}, 
+          'DT DIFF': {'hours': '0', 'rate': '80.57'}
+          },
       'Materials': [
           {
               'material': 'MAPEI PLANIPREP SC 10LB BAG', 
