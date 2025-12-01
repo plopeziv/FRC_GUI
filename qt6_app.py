@@ -311,12 +311,7 @@ class AddTicketDialog(QDialog):
     
     def validate_form(self, ticket_data):
         """Validate form data"""
-        errors = []
-        
-        # Validate ticket number
-        ticket_num = ticket_data["Ticket Number"]
-        if not ticket_num.isdigit() or len(ticket_num) != 5:
-            errors.append("Ticket Number: Must be a 5 digit integer")
+        errors = []   
         
         # Validate date
         date_str = ticket_data["Date"]
