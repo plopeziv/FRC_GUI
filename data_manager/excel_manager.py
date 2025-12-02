@@ -60,9 +60,15 @@ class ExcelManager:
             
         header_values = self.dataframe.iloc[self.header_row]
         self.headers = [str(material).strip() for material in header_values]
+        
+        # Get headers because header row doesn't always calculate formulas.
+        materials = self.get_materials()
+        replacement_index = len(materials)
+        self.headers[-replacement_index:] = materials
+        
         return self.headers
     
-    def get_materials(self, start_col=74, header_row = 6):
+    def get_materials(self, start_col=67, header_row = 6):
         if self.dataframe is None:
             raise ValueError("Excel file not loaded yet. Call load() first.")
             
@@ -119,11 +125,11 @@ class ExcelManager:
         worksheet.cell(row=ticket_row, column=11, value=ticket_object["Description"])
         
     def _insert_labor(self, worksheet, ticket_row, labor_object):
-        worksheet.cell(row=ticket_row, column=19, value = self._safe_float(labor_object["RT"]))
-        worksheet.cell(row=ticket_row, column=20, value = self._safe_float(labor_object["OT"]))
-        worksheet.cell(row=ticket_row, column=21, value = self._safe_float(labor_object["DT"]))
-        worksheet.cell(row=ticket_row, column=22, value = self._safe_float(labor_object["OT DIFF"]))
-        worksheet.cell(row=ticket_row, column=23, value = self._safe_float(labor_object["DT DIFF"]))
+        worksheet.cell(row=ticket_row, column=19, value = self._safe_float(labor_object["RT"]["hours"]))
+        worksheet.cell(row=ticket_row, column=20, value = self._safe_float(labor_object["OT"]["hours"]))
+        worksheet.cell(row=ticket_row, column=21, value = self._safe_float(labor_object["DT"]["hours"]))
+        worksheet.cell(row=ticket_row, column=22, value = self._safe_float(labor_object["OT DIFF"]["hours"]))
+        worksheet.cell(row=ticket_row, column=23, value = self._safe_float(labor_object["DT DIFF"]["hours"]))
         
     def _insert_materials(self, worksheet, material_row, materials):
         for material_object in materials:
@@ -173,15 +179,28 @@ if __name__ =="__main__":
       'Signature': 'Yes',
       'Type': 'REGULAR',
       'Description': 'Fixed pump housing leak',
-      'Labor': {'RT': '8', 'OT': '2', 'DT': '0', 'OT DIFF': '0.5', 'DT DIFF': '0'},
+      'Labor': {
+          'RT': {'hours':'12', 'rate': '153.15'}, 
+          'OT': {'hours':'4', 'rate': '197.70'}, 
+          'DT': {'hours':'0', 'rate': '237.72'}, 
+          'OT DIFF': {'hours':'0', 'rate':'40.55'}, 
+          'DT DIFF': {'hours': '0', 'rate': '80.57'}
+          },
       'Materials': [
           {
-              'material': 'MAPEI PLANIPREP SC 10LB BAG', 
-              'quantity': '3'
+              'material': '1/4 UNDERLAYMENT 4 X 5"', 
+              'quantity': '3',
+              'sell price': '53.44'
           }, 
           {
               'material': 'MAPEI QUICK PATCH 25LB', 
-              'quantity': '10'
+              'quantity': '10',
+              'sell price': '34.87'
+          },
+          {
+              'material': 'HEPA SANDER#302 & VAC #701', 
+              'quantity': '1',
+              'sell price': '150'
           }
      ]
     }

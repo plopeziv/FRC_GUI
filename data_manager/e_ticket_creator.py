@@ -330,7 +330,7 @@ class ETicketCreator:
     
 
 if __name__ =="__main__":
-    test_path = "E-ticket Replacement EDITABLE.xlsx"
+    test_path = "E-ticket Replacement EDITABLE - PYTHON.xlsx"
     
     
     incoming_ticket = {
@@ -355,19 +355,18 @@ if __name__ =="__main__":
           {
               'material': 'MAPEI PLANIPREP SC 10LB BAG', 
               'quantity': '3',
-              'sell price': '32.50'
+              'sell price': '34.35'
           }, 
           {
               'material': 'MAPEI QUICK PATCH 25LB', 
               'quantity': '10',
-              'sell price': '36.20'
+              'sell price': '34.87'
           },
           {
-              'material': 'HEPA SANDER/VAC', 
+              'material': 'HEPA SANDER#302 & VAC #701', 
               'quantity': '1',
               'sell price': '150'
           }
-
      ]
     }
     
