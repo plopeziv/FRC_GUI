@@ -62,7 +62,7 @@ class ExcelManager:
         self.headers = [str(material).strip() for material in header_values]
         return self.headers
     
-    def get_materials(self, start_col=74, header_row = 13):
+    def get_materials(self, start_col=74, header_row = 6):
         if self.dataframe is None:
             raise ValueError("Excel file not loaded yet. Call load() first.")
             

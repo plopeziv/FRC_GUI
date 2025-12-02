@@ -252,12 +252,11 @@ class AddTicketDialog(QDialog):
         try:
             quantity = self.material_qt.text().strip()
             material = self.material_input.text().strip()
-            
             if not quantity or not material:
                 QMessageBox.warning(self, "Input Error", "Please enter both quantity and material")
                 return
 
-            if material not in self.excel_manager.headers:
+            if material not in self.excel_manager.materials:
                 QMessageBox.warning(
                     self,
                     "Invalid Material",
@@ -652,7 +651,7 @@ class FRCTicketGUI(QMainWindow):
                 # Validate that the material exists in headers before proceeding
                 material = dialog.material_input.text().strip()
                 
-                if material and material not in self.manager.headers:
+                if material and material not in self.manager.materials:
                     QMessageBox.warning(
                         self,
                         "Invalid Material",
@@ -666,7 +665,7 @@ class FRCTicketGUI(QMainWindow):
             if dialog.exec_() == QDialog.Accepted:
                 # Validate that the material exists in headers before proceeding
                 material = dialog.material_input.text().strip()
-                if material and material not in self.manager.headers:
+                if material and material not in self.manager.materials:
                     QMessageBox.warning(
                         self,
                         "Invalid Material",
