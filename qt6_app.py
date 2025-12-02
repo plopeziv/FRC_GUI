@@ -347,11 +347,11 @@ class AddTicketDialog(QDialog):
         
         # Validate labor fields
         labor = ticket_data["Labor"]
-        for key, value in labor.items():
-            if value == "":
+        for key, labor_object in labor.items():
+            if labor_object["hours"] == "":
                 continue
             try:
-                val = float(value)
+                val = float(labor_object["hours"])
                 if val < 0:
                     errors.append(f"{key}: Must be positive")
             except ValueError:
@@ -393,11 +393,11 @@ class AddTicketDialog(QDialog):
             'Work Location': self.work_location,
             "Description": self.description.toPlainText().strip(),
             "Labor": {
-                "RT": self.rt_input.text().strip(),
-                "OT": self.ot_input.text().strip(),
-                "DT": self.dt_input.text().strip(),
-                "OT DIFF": self.ot_diff_input.text().strip(),
-                "DT DIFF": self.dt_diff_input.text().strip(),
+                "RT": {"hours": self.rt_input.text().strip()},
+                "OT": {"hours": self.ot_input.text().strip()},
+                "DT": {"hours": self.dt_input.text().strip()},
+                "OT DIFF": {"hours": self.ot_diff_input.text().strip()},
+                "DT DIFF": {"hours": self.dt_diff_input.text().strip()},
             },
             "Materials": self.materials_to_add
         }

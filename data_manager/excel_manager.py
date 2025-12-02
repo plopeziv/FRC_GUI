@@ -62,6 +62,7 @@ class ExcelManager:
         self.headers = [str(material).strip() for material in header_values]
         
         # Get headers because header row doesn't always calculate formulas.
+        # Replace tail of list with new reference row
         materials = self.get_materials()
         replacement_index = len(materials)
         self.headers[-replacement_index:] = materials
