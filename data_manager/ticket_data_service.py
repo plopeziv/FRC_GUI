@@ -90,7 +90,7 @@ class TicketDataService:
         
         self.labor_ticket_summary = df
         
-    def build_material_data(self):        
+    def build_material_data(self):
         row5 = self.excel_manager.dataframe.iloc[5]
         
         col_index = row5[row5=="Structure Material #"].index[0]
@@ -160,7 +160,7 @@ class TicketDataService:
             )
         # ================================================================
         
-        # Complete Material Ticket Summary            
+        # Complete Material Ticket Summary
         first_filtered_item = self.material_summary.columns[0]
         
         if first_filtered_item not in self.material_ticket_summary.columns:

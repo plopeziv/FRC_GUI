@@ -356,7 +356,19 @@ class AddTicketDialog(QDialog):
                     errors.append(f"{key}: Must be positive")
             except ValueError:
                 errors.append(f"{key}: Must be numeric")
+
+        # Validate that the material exists in headers before proceeding
+        materials = ticket_data.get("Materials", [])
+        excel_materials = self.excel_manager.materials
+
+        missing_materials = [material for material in materials if material["material"] not in excel_materials]        
         
+        for material in missing_materials:
+            errors.append(
+                f"Invalid Material: Material '{material}' does not exist in the material spreadsheet headers.\n"
+                "Please add this material as a column first."
+            )
+                
         return errors
     
     def submit_form(self):
@@ -638,41 +650,13 @@ class FRCTicketGUI(QMainWindow):
             return str(value)
     
     def add_ticket_row(self):
-        """Open dialog to add a new ticket row"""
-        if self.manager is None:
-            QMessageBox.warning(self, "No File", "Please load an Excel file first")
-            return
-        
+        """Open dialog to add a new ticket row"""        
         dialog = AddTicketDialog(self.manager, self)
-        try:
-            # PyQt6/PySide6 style
-            if dialog.exec() == QDialog.DialogCode.Accepted:
-                # Validate that the material exists in headers before proceeding
-                material = dialog.material_input.text().strip()
-                
-                if material and material not in self.manager.materials:
-                    QMessageBox.warning(
-                        self,
-                        "Invalid Material",
-                        f"Material '{material}' does not exist in the spreadsheet headers.\n"
-                        f"Please add this material as a column first."
-                    )
-                    return
-                self.load_data()
-        except AttributeError:
-            # PyQt5/PySide2 style
-            if dialog.exec_() == QDialog.Accepted:
-                # Validate that the material exists in headers before proceeding
-                material = dialog.material_input.text().strip()
-                if material and material not in self.manager.materials:
-                    QMessageBox.warning(
-                        self,
-                        "Invalid Material",
-                        f"Material '{material}' does not exist in the spreadsheet headers.\n"
-                        f"Please add this material as a column first."
-                    )
-                    return
-                self.load_data()
+
+        # PyQt6/PySide6 style
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.load_data()
+
 
 
 def main():
