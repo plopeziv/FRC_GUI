@@ -90,7 +90,7 @@ class TicketDataService:
         
         self.labor_ticket_summary = df
         
-    def build_material_data(self):
+    def build_material_data(self):        
         row5 = self.excel_manager.dataframe.iloc[5]
         
         col_index = row5[row5=="Structure Material #"].index[0]
@@ -125,8 +125,47 @@ class TicketDataService:
         self.material_summary = self.material_summary.drop(columns=columns_to_drop)
         self.material_ticket_summary = self.material_ticket_summary.drop(columns = columns_to_drop + ["Labor Sell", "Labor Cost"])
         
-        # Complete Material Ticket Summary
+        # ================================================================
+        # SAFETY FIX: If all columns were dropped, restore standard headers
+        # ================================================================
+        STANDARD_MATERIAL_HEADERS = [
+            '1/4 UNDERLAYMENT 4 X 5"',
+            "MAPEI PLANIPREP SC 10LB BAG",
+            "MAPEI QUICK PATCH 25LB",
+            "PRIMER X",
+            "SANDING DISC GRIT 36 MEDIUM EA",
+        ]
+    
+        if len(self.material_summary.columns) == 0:
+            # Rebuild a safe blank summary with required rows + headers
+            self.material_summary = (
+                pd.DataFrame(
+                    index=[
+                        "Cost Per Unit (w/Tax)",
+                        "Sell Per Unit",
+                        "Material Counts to Date",
+                        "Cost to Date",
+                        "Sell to Date"
+                    ],
+                    columns=STANDARD_MATERIAL_HEADERS
+                ).fillna(0)
+            )
+    
+        if len(self.material_ticket_summary.columns) == 0:
+            # Rebuild blank ticket summary
+            self.material_ticket_summary = (
+                pd.DataFrame(
+                    columns=STANDARD_MATERIAL_HEADERS + ["Material Cost", "Material Sell"]
+                ).astype(float).fillna(0)
+            )
+        # ================================================================
+        
+        # Complete Material Ticket Summary            
         first_filtered_item = self.material_summary.columns[0]
+        
+        if first_filtered_item not in self.material_ticket_summary.columns:
+            first_filtered_item = self.material_ticket_summary.columns[0]
+            
         cost_per_unit = self.material_summary.loc["Cost Per Unit (w/Tax)", first_filtered_item:]
         self.material_ticket_summary["Material Cost"] = (
             self.material_ticket_summary.loc[:, first_filtered_item:].multiply(cost_per_unit, axis=1).sum(axis=1)
@@ -190,8 +229,7 @@ class TicketDataService:
 
 
 if __name__ == "__main__":
-    test_path = "027386 - DETAILED TICKET LISTING - PYTHON Copy.xlsx"
-    first_item = '1/4 UNDERLAYMENT 4 X 5"'
+    test_path = "test_spread.xlsx"
     
     manager = TicketDataService(test_path)
     
