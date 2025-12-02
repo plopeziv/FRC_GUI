@@ -567,17 +567,16 @@ class FRCTicketGUI(QMainWindow):
         # Set headers
         table.setHorizontalHeaderLabels([str(col) for col in df.columns])
         table.setVerticalHeaderLabels([str(idx) for idx in df.index])
-
-        #Initiate Currency Columns
-        currency_columns = currency_cols
-        currency_rows = currency_rows
         
         # Populate data
-        for i, row_idx in enumerate(df.index):
-            for j, col in enumerate(df.columns):
-                value = df.loc[row_idx, col]
+        for i in range(len(df)):
+            row_idx = df.index[i]
+            row_values = df.iloc[i]
 
-                if col in currency_columns or row_idx in currency_rows:
+            for j, col in enumerate(df.columns):
+                value = row_values[col]
+
+                if col in currency_cols or row_idx in currency_rows:
                     value = self.format_currency(value)
 
                 item = QTableWidgetItem(str(value))
