@@ -27,12 +27,16 @@ class ETicketCreator:
         ws = wb.active
         
         self._insert_job_info(ws)
+        
+        self._unmerge_from_row(ws, start_row=32)
 
         self._insert_labor(ws)
         
         self._insert_materials(ws)
         
         self._calculate_ticket_total(ws)
+        
+        self._format_footer(ws)
         
         wb.save(f"{self.incoming_ticket['Job Number']} - {self.incoming_ticket['Ticket Number']}.xlsx")
         
@@ -225,7 +229,97 @@ class ETicketCreator:
             if check_value and search_term in str(check_value):
                 return row
         
-        return None    
+        return None
+
+    def _format_footer(self, ws):
+        
+        # Find the row you want to merge cells for
+        ws_row = self._find_material_row(ws, search_term="Work Status")
+        
+        self._unmerge_row(ws, ws_row)
+                
+        # Merge columns 1–2 (A–B)
+        ws.merge_cells(start_row=ws_row, end_row=ws_row, start_column=1, end_column=2)
+        
+        # Merge columns 3–6 (C–F)
+        ws.merge_cells(start_row=ws_row, end_row=ws_row, start_column=3, end_column=6)
+        
+        self._add_bottom_border(ws, ws_row, 7, 9)
+        
+        ws.row_dimensions[ws_row].height = 15
+        
+        # as Row
+        as_row = self._find_material_row(ws, search_term="Authorization Status")
+        
+        self._unmerge_row(ws, as_row)
+                
+        ws.merge_cells(start_row=as_row, end_row=as_row, start_column=1, end_column=2)
+        
+        ws.merge_cells(start_row=as_row, end_row=as_row, start_column=3, end_column=9)
+        ws.merge_cells(start_row=as_row+1, end_row=as_row+1, start_column=3, end_column=9)
+        
+        ws.row_dimensions[as_row].height = 15
+        ws.row_dimensions[as_row+1].height = 15
+        ws.row_dimensions[as_row+2].height = 15
+        
+        # fs_row
+        fs_row = self._find_material_row(ws, search_term="Field Supervisor")
+        
+        for row in range(ws_row - 1, fs_row):
+            ws.row_dimensions[row].height = 15
+        
+        self._unmerge_row(ws, fs_row)
+        
+        ws.merge_cells(start_row=fs_row, end_row=fs_row, 
+                       start_column=1, end_column=2)
+        
+        self._add_bottom_border(ws, fs_row, 3, 4)
+        self._add_bottom_border(ws, fs_row, 7, 9)
+        
+        ws.row_dimensions[fs_row].height = 25
+       
+        # pm_row
+        pm_row = self._find_material_row(ws, search_term="Project Manager")
+        self._unmerge_row(ws, pm_row)
+        ws.merge_cells(start_row=pm_row, end_row=pm_row, 
+                       start_column=1, end_column=2)
+        
+        self._add_bottom_border(ws, pm_row, 3, 4)
+        self._add_bottom_border(ws, pm_row, 7, 9)
+        
+        ws.row_dimensions[pm_row].height = 25
+        
+    def _unmerge_row(self, ws, row_number):
+
+        # Make a copy of merged ranges because we can't modify the list while iterating
+        for merged_range in list(ws.merged_cells.ranges):
+            if merged_range.min_row <= row_number <= merged_range.max_row:
+                ws.unmerge_cells(str(merged_range))
+                
+    def _unmerge_from_row(self, ws, start_row):
+        """
+        Unmerge all merged cells from a given row downward.
+        """
+        for merged_range in list(ws.merged_cells.ranges):
+            if merged_range.min_row >= start_row:
+                ws.unmerge_cells(str(merged_range))
+                
+    def _add_bottom_border(self, ws, row, start_col, end_col, style='thin'):
+        
+        from openpyxl.styles import Border, Side
+        
+        for col in range(start_col, end_col + 1):
+            cell = ws.cell(row=row, column=col)
+            cell.border = Border(
+                left=cell.border.left,
+                right=cell.border.right,
+                top=cell.border.top,
+                bottom=Side(style=style)
+            )
+            
+
+        
+        
     
         
         
@@ -272,7 +366,7 @@ if __name__ =="__main__":
               'material': 'HEPA SANDER/VAC', 
               'quantity': '1',
               'sell price': '150'
-          }, 
+          }
 
      ]
     }
