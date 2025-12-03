@@ -11,6 +11,7 @@ class ExcelManager:
         self.job_address = None
         self.dataframe = None;
         self.materials = [];
+        self.material_map = {}
         self.headers = []
         self.data_rows = [];
         self.header_row = 13
@@ -33,7 +34,10 @@ class ExcelManager:
 
         self.get_headers()
         
+        # Can eventually be removed using get_material_map
         self.get_materials()
+        
+        self.get_material_map()
         
         self.get_data_rows()
         
@@ -62,7 +66,6 @@ class ExcelManager:
         self.headers = [str(material).strip() for material in header_values]
         
         # Get headers because header row doesn't always calculate formulas.
-        # Replace tail of list with new reference row
         materials = self.get_materials()
         replacement_index = len(materials)
         self.headers[-replacement_index:] = materials
@@ -77,6 +80,23 @@ class ExcelManager:
         self.materials = [material for material in row_values if pd.notna(material)]
         
         return self.materials
+    
+    def get_material_map(self, start_col=67, header_row = 6):
+
+        material_row_values = self.dataframe.iloc[header_row, start_col:]
+        price_row_values = self.dataframe.iloc[header_row + 4, start_col:]
+
+        for col_idx, material in enumerate(material_row_values):
+            if pd.notna(material):
+                material_name = str(material).strip()
+                material_price = self._safe_float(price_row_values.iloc[col_idx])
+                
+                self.material_map[material_name] = {"Sell Per Unit": material_price}
+                
+        stop_var = self.material_map
+        
+        return
+
     
     def get_data_rows (self):
         

@@ -62,6 +62,7 @@ class AddTicketDialog(QDialog):
     def __init__(self, excel_manager, parent=None):
         super().__init__(parent)
         self.excel_manager = excel_manager
+        self.available_materials = list(self.excel_manager.material_map.keys())
         self.materials_to_add = []
         self.init_ui()
     
@@ -180,12 +181,12 @@ class AddTicketDialog(QDialog):
         material_input_layout.addWidget(QLabel("Material:"))
 
         # Inline Completion
-        self.material_input = InlineCompleterLineEdit(self.excel_manager.materials)
+        self.material_input = InlineCompleterLineEdit(self.available_materials)
         self.material_input.setPlaceholderText("Start typing material...")
         self.material_input.setMinimumWidth(300)
 
         # Add autocomplete/search functionality
-        completer = QCompleter(self.excel_manager.materials)
+        completer = QCompleter(self.available_materials)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setFilterMode(Qt.MatchContains)
         self.material_input.setCompleter(completer)
@@ -256,7 +257,7 @@ class AddTicketDialog(QDialog):
                 QMessageBox.warning(self, "Input Error", "Please enter both quantity and material")
                 return
 
-            if material not in self.excel_manager.materials:
+            if material not in self.available_materials:
                 QMessageBox.warning(
                     self,
                     "Invalid Material",
@@ -270,6 +271,9 @@ class AddTicketDialog(QDialog):
                 QMessageBox.warning(self, "Input Error", "Quantity must be greater than zero")
                 return
             
+            sell_price_float = float(self.excel_manager.material_map[material]["Sell Per Unit"])
+            sell_price = round(sell_price_float, 2)
+            
             # Check if material already exists and update
             for i in range(self.materials_list.count()):
                 item = self.materials_list.item(i)
@@ -277,22 +281,22 @@ class AddTicketDialog(QDialog):
                 if item_data['material'] == material:
                     # Update existing
                     item_data['quantity'] = quantity
-                    item.setText(f"{quantity} × {material}")
+                    item.setText(f"{quantity} × {material} @ ${sell_price:.2f}")
                     QMessageBox.information(self, "Updated", f"Updated {material} quantity to {quantity}")
                     return
             
             # Add new material
-            material_data = {"material": material, "quantity": quantity}
+            material_data = {"material": material, "quantity": quantity, "sell price": sell_price}
             self.materials_to_add.append(material_data)
             
-            item = QListWidgetItem(f"{quantity} × {material}")
+            item = QListWidgetItem(f"{quantity} × {material} @ ${sell_price:.2f}")
             item.setData(Qt.UserRole, material_data)
             self.materials_list.addItem(item)
             
             # Clear inputs
             self.material_qt.clear()
             
-            QMessageBox.information(self, "Success", f"Added {quantity} × {material}")
+            QMessageBox.information(self, "Success", f"Added {quantity} {material}")
             
         except ValueError:
             QMessageBox.warning(self, "Input Error", "Quantity must be a valid number")
@@ -359,7 +363,7 @@ class AddTicketDialog(QDialog):
 
         # Validate that the material exists in headers before proceeding
         materials = ticket_data.get("Materials", [])
-        excel_materials = self.excel_manager.materials
+        excel_materials = self.available_materials
 
         missing_materials = [material for material in materials if material["material"] not in excel_materials]        
         
