@@ -92,8 +92,6 @@ class ExcelManager:
                 material_price = self._safe_float(price_row_values.iloc[col_idx])
                 
                 self.material_map[material_name] = {"Sell Per Unit": material_price}
-                
-        stop_var = self.material_map
         
         return
 
@@ -134,9 +132,9 @@ class ExcelManager:
     def _safe_float(self, incoming_value):
         try:
             incoming_value = str(incoming_value).strip().lower()
-            return float(incoming_value) if incoming_value not in ("none", "", "nan") else None
+            return float(incoming_value) if incoming_value not in ("none", "", "nan") else 0.0
         except(ValueError, TypeError):
-            return None
+            return 0.0
         
     def _insert_ticket_info(self, worksheet, ticket_row, ticket_object):
         worksheet.cell(row=ticket_row, column=7, value=ticket_object["Date"])

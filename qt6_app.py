@@ -213,15 +213,15 @@ class AddTicketDialog(QDialog):
         main_layout.addWidget(self.materials_list)
 
         # Output Folder Picker
-        self.folder_label = QLabel("No folder selected")
-        self.folder_label.setStyleSheet("color: gray;")
-        main_layout.addWidget(self.folder_label)
+        # self.folder_label = QLabel("No folder selected")
+        # self.folder_label.setStyleSheet("color: gray;")
+        # main_layout.addWidget(self.folder_label)
 
-        self.folder_btn = QPushButton("Select Output Folder")
-        self.folder_btn.clicked.connect(self.select_output_folder)
-        main_layout.addWidget(self.folder_btn)
+        # self.folder_btn = QPushButton("Select Output Folder")
+        # self.folder_btn.clicked.connect(self.select_output_folder)
+        # main_layout.addWidget(self.folder_btn)
 
-        self.selected_folder_path = None
+        # self.selected_folder_path = None
         
         # Buttons
         button_layout = QHBoxLayout()
@@ -296,7 +296,7 @@ class AddTicketDialog(QDialog):
             # Clear inputs
             self.material_qt.clear()
             
-            QMessageBox.information(self, "Success", f"Added {quantity} {material}")
+            # QMessageBox.information(self, "Success", f"Added {quantity} {material}")
             
         except ValueError:
             QMessageBox.warning(self, "Input Error", "Quantity must be a valid number")
@@ -377,13 +377,13 @@ class AddTicketDialog(QDialog):
     
     def submit_form(self):
         # Check if Output Folder has been selected
-        if not self.selected_folder_path:
-            QMessageBox.warning(
-                self,
-                "Missing Output Folder",
-                "Please select an output folder before submitting the ticket."
-            )
-            return
+        # if not self.selected_folder_path:
+        #     QMessageBox.warning(
+        #         self,
+        #         "Missing Output Folder",
+        #         "Please select an output folder before submitting the ticket."
+        #     )
+        #     return
 
         ticket_data = {
             'Job Number': self.excel_manager.job_number,
@@ -393,8 +393,8 @@ class AddTicketDialog(QDialog):
             "Date": self.date_input.text().strip(),
             "Signature": self.signature.currentText(),
             "Type": self.ticket_type.currentText(),
-            'Installers': self.installer_input,
-            'Work Location': self.work_location,
+            'Installers': self.installer_input.text().strip(),
+            'Work Location': self.work_location.text().strip(),
             "Description": self.description.toPlainText().strip(),
             "Labor": {
                 "RT": {"hours": self.rt_input.text().strip()},
@@ -418,7 +418,11 @@ class AddTicketDialog(QDialog):
         try:
             self.excel_manager.insert_ticket(ticket_data)
             self.excel_manager.load()
-            QMessageBox.information(self, "Success", "✅ Ticket added and saved successfully!")
+
+            # e_ticket_creator = ETicketCreator(self.selected_folder_path, ticket_data)
+            # e_ticket_creator.load_ticket()
+
+            QMessageBox.information(self, "Success", "✅ Ticket created and saved successfully!")
             self.accept()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"❌ Failed to save ticket: {str(e)}")
