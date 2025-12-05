@@ -12,6 +12,7 @@ class ExcelManager:
         self.dataframe = None;
         self.materials = [];
         self.material_map = {}
+        self.labor_map = {}
         self.headers = []
         self.data_rows = [];
         self.header_row = 13
@@ -33,6 +34,8 @@ class ExcelManager:
         self. job_address = self.dataframe.iloc[3,8]
 
         self.get_headers()
+        
+        self.get_labor_map()
         
         # Can eventually be removed using get_material_map
         self.get_materials()
@@ -94,6 +97,21 @@ class ExcelManager:
                 self.material_map[material_name] = {"Sell Per Unit": material_price}
         
         return
+    
+    def get_labor_map(self):
+        rt = self._safe_float(self.dataframe.iloc[10, 12])
+        ot = self._safe_float(self.dataframe.iloc[10, 13])
+        dt = self._safe_float(self.dataframe.iloc[10, 14])
+        
+        rt, ot, dt = round(rt, 2), round(ot, 2), round(dt, 2)
+    
+        self.labor_map = {
+            "RT": {"rate": rt},
+            "OT": {"rate": ot},
+            "DT": {"rate": dt},
+            "OT DIFF": {"rate": round(ot-rt, 2)},
+            "DT DIFF": {"rate": round(dt-rt, 2)},
+            }
 
     
     def get_data_rows (self):

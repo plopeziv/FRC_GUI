@@ -16,13 +16,13 @@ class ETicketCreator:
         from openpyxl import load_workbook
         
         if not self.file_path:
-            raise ValueError("No file provided!")
+            raise ValueError("No folder provided!")
             
-        path = Path(self.file_path)
+        path = Path(self.file_path) / "E-ticket Replacement EDITABLE - PYTHON.xlsx"
         if not path.exists():
             raise FileNotFoundError(f"File not found: {path}")
         
-        path = self._ensure_xlsx_copy()
+        path = self._ensure_xlsx_copy(path)
         wb = load_workbook(path)
         ws = wb.active
         
@@ -38,17 +38,18 @@ class ETicketCreator:
         
         self._format_footer(ws)
         
-        wb.save(f"{self.incoming_ticket['Job Number']} - {self.incoming_ticket['Ticket Number']}.xlsx")
+        save_path =  Path(self.file_path) / f"{self.incoming_ticket['Job Number']} - {self.incoming_ticket['Ticket Number']}.xlsx"
+        
+        wb.save(save_path)
         
     
-    def _ensure_xlsx_copy(self):
+    def _ensure_xlsx_copy(self, path):
         """
         If the working copy path is .xls, convert it to .xlsx for openpyxl.
         Returns the new path (string) compatible with openpyxl.
         """
         import pandas as pd
 
-        path = Path(self.file_path)
         if path.suffix.lower() == ".xls":
             new_path = path.with_suffix(".xlsx")
             if not new_path.exists():
@@ -104,7 +105,7 @@ class ETicketCreator:
         active_labor = {
             category_map[k]: v for k, v 
             in labor_object.items()
-            if float(v["hours"]) > 0}
+            if self._safe_float(v["hours"]) > 0}
         
         #Safety Check
         if not active_labor:
@@ -120,9 +121,9 @@ class ETicketCreator:
         first_key = next(iterator)
         
         # Write first labor entry into row 17
-        ws['B17'] = round(float(active_labor[first_key]["hours"]), 1)
+        ws['B17'] = round(self._safe_float(active_labor[first_key]["hours"]), 1)
         ws['C17'] = first_key
-        ws['F17'] = round(float(active_labor[first_key]["rate"]),2)
+        ws['F17'] = round(self._safe_float(active_labor[first_key]["rate"]),2)
         ws['I17'] = "=B17*F17"
         
         # Insert Additional Labor Rows
@@ -136,9 +137,9 @@ class ETicketCreator:
            ws.merge_cells(start_row=current_row, end_row=current_row, 
                           start_column=3, end_column=4)
            
-           ws[f'B{current_row}'] = round(float(active_labor[key]["hours"]), 1)
+           ws[f'B{current_row}'] = round(self._safe_float(active_labor[key]["hours"]), 1)
            ws[f'C{current_row}'] = key
-           ws[f'F{current_row}'] = round(float(active_labor[key]["rate"]),2)
+           ws[f'F{current_row}'] = round(self._safe_float(active_labor[key]["rate"]),2)
            ws[f'I{current_row}'] = f'=B{current_row}*F{current_row}'
            
         ws[f'I{current_row+2}'] = f'=SUM(I17:I{current_row})'
@@ -178,7 +179,7 @@ class ETicketCreator:
         # First Material Row
         ws[f'B{start_row}'] = material_object[0]["quantity"]
         ws[f'C{start_row}'] = material_object[0]["material"]
-        ws[f'F{start_row}'] = round(float(material_object[0]["sell price"]))
+        ws[f'F{start_row}'] = round(self._safe_float(material_object[0]["sell price"]))
         ws[f'I{start_row}'] = f'=B{start_row} * F{start_row}'
         
         ws.row_dimensions[start_row].height = 25
@@ -197,7 +198,7 @@ class ETicketCreator:
             
             ws[f'B{current_row}'] = material["quantity"]
             ws[f'C{current_row}'] = material["material"]
-            ws[f'F{current_row}'] = round(float(material["sell price"]))
+            ws[f'F{current_row}'] = round(self._safe_float(material["sell price"]))
             ws[f'I{current_row}'] = f'=B{current_row} * F{current_row}'
             
             ws.row_dimensions[current_row].height = 25
@@ -317,6 +318,12 @@ class ETicketCreator:
                 bottom=Side(style=style)
             )
             
+    def _safe_float(self, incoming_value):
+        try:
+            incoming_value = str(incoming_value).strip().lower()
+            return float(incoming_value) if incoming_value not in ("none", "", "nan") else 0.0
+        except(ValueError, TypeError):
+            return 0.0
 
         
         

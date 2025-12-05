@@ -4,12 +4,15 @@ A professional desktop application with native file dialogs and forms
 """
 import sys
 import re
+
+from data_manager.e_ticket_creator import ETicketCreator
+
 from qtpy.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLabel, QTableWidget, QTableWidgetItem, QFileDialog,
     QTabWidget, QMessageBox, QHeaderView, QDialog, QLineEdit, QComboBox,
     QTextEdit, QFormLayout, QListWidget, QListWidgetItem, QSpinBox,
-    QDoubleSpinBox, QScrollArea, QCompleter
+    QDoubleSpinBox, QScrollArea, QCompleter, QCheckBox
 )
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QFont
@@ -213,15 +216,26 @@ class AddTicketDialog(QDialog):
         main_layout.addWidget(self.materials_list)
 
         # Output Folder Picker
-        # self.folder_label = QLabel("No folder selected")
-        # self.folder_label.setStyleSheet("color: gray;")
-        # main_layout.addWidget(self.folder_label)
+        folder_row = QHBoxLayout()
 
-        # self.folder_btn = QPushButton("Select Output Folder")
-        # self.folder_btn.clicked.connect(self.select_output_folder)
-        # main_layout.addWidget(self.folder_btn)
+        self.folder_label = QLabel("No folder selected")
+        self.folder_label.setStyleSheet("color: gray;")
 
-        # self.selected_folder_path = None
+        folder_row.addWidget(self.folder_label)
+        folder_row.addStretch()
+
+        self.use_eticket_checkbox = QCheckBox("Generate E-Ticket")
+        self.use_eticket_checkbox.setChecked(True)
+
+        folder_row.addWidget(self.use_eticket_checkbox)
+
+        main_layout.addLayout(folder_row)
+
+        self.folder_btn = QPushButton("Select Output Folder")
+        self.folder_btn.clicked.connect(self.select_output_folder)
+        main_layout.addWidget(self.folder_btn)
+
+        self.selected_folder_path = None
         
         # Buttons
         button_layout = QHBoxLayout()
@@ -377,13 +391,13 @@ class AddTicketDialog(QDialog):
     
     def submit_form(self):
         # Check if Output Folder has been selected
-        # if not self.selected_folder_path:
-        #     QMessageBox.warning(
-        #         self,
-        #         "Missing Output Folder",
-        #         "Please select an output folder before submitting the ticket."
-        #     )
-        #     return
+        if self.use_eticket_checkbox.isChecked() and not self.selected_folder_path:
+            QMessageBox.warning(
+                self,
+                "Missing Output Folder",
+                "Please select an output folder before submitting the ticket."
+            )
+            return
 
         ticket_data = {
             'Job Number': self.excel_manager.job_number,
@@ -397,11 +411,11 @@ class AddTicketDialog(QDialog):
             'Work Location': self.work_location.text().strip(),
             "Description": self.description.toPlainText().strip(),
             "Labor": {
-                "RT": {"hours": self.rt_input.text().strip()},
-                "OT": {"hours": self.ot_input.text().strip()},
-                "DT": {"hours": self.dt_input.text().strip()},
-                "OT DIFF": {"hours": self.ot_diff_input.text().strip()},
-                "DT DIFF": {"hours": self.dt_diff_input.text().strip()},
+                "RT": {"hours": self.rt_input.text().strip(), "rate": self.excel_manager.labor_map["RT"]["rate"]},
+                "OT": {"hours": self.ot_input.text().strip(), "rate": self.excel_manager.labor_map["OT"]["rate"]},
+                "DT": {"hours": self.dt_input.text().strip(), "rate": self.excel_manager.labor_map["DT"]["rate"]},
+                "OT DIFF": {"hours": self.ot_diff_input.text().strip(), "rate": self.excel_manager.labor_map["OT DIFF"]["rate"]},
+                "DT DIFF": {"hours": self.dt_diff_input.text().strip(), "rate": self.excel_manager.labor_map["DT DIFF"]["rate"]},
             },
             "Materials": self.materials_to_add
         }
@@ -419,8 +433,9 @@ class AddTicketDialog(QDialog):
             self.excel_manager.insert_ticket(ticket_data)
             self.excel_manager.load()
 
-            # e_ticket_creator = ETicketCreator(self.selected_folder_path, ticket_data)
-            # e_ticket_creator.load_ticket()
+            if self.use_eticket_checkbox.isChecked():
+                e_ticket_creator = ETicketCreator(self.selected_folder_path, ticket_data)
+                e_ticket_creator.load_ticket()
 
             QMessageBox.information(self, "Success", "✅ Ticket created and saved successfully!")
             self.accept()
