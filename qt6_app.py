@@ -309,6 +309,7 @@ class AddTicketDialog(QDialog):
             
             # Clear inputs
             self.material_qt.clear()
+            self.material_qt.setFocus()
             
             # QMessageBox.information(self, "Success", f"Added {quantity} {material}")
             
