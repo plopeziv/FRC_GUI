@@ -179,7 +179,7 @@ class ETicketCreator:
         # First Material Row
         ws[f'B{start_row}'] = material_object[0]["quantity"]
         ws[f'C{start_row}'] = material_object[0]["material"]
-        ws[f'F{start_row}'] = round(self._safe_float(material_object[0]["sell price"]))
+        ws[f'F{start_row}'] = round(self._safe_float(material_object[0]["sell price"]), 2)
         ws[f'I{start_row}'] = f'=B{start_row} * F{start_row}'
         
         ws.row_dimensions[start_row].height = 25
@@ -198,7 +198,7 @@ class ETicketCreator:
             
             ws[f'B{current_row}'] = material["quantity"]
             ws[f'C{current_row}'] = material["material"]
-            ws[f'F{current_row}'] = round(self._safe_float(material["sell price"]))
+            ws[f'F{current_row}'] = round(self._safe_float(material["sell price"]), 2)
             ws[f'I{current_row}'] = f'=B{current_row} * F{current_row}'
             
             ws.row_dimensions[current_row].height = 25
