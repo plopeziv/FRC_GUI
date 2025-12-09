@@ -411,11 +411,26 @@ class AddTicketDialog(QDialog):
             'Work Location': self.work_location.text().strip(),
             "Description": self.description.toPlainText().strip(),
             "Labor": {
-                "RT": {"hours": self.rt_input.text().strip(), "rate": self.excel_manager.labor_map["RT"]["rate"]},
-                "OT": {"hours": self.ot_input.text().strip(), "rate": self.excel_manager.labor_map["OT"]["rate"]},
-                "DT": {"hours": self.dt_input.text().strip(), "rate": self.excel_manager.labor_map["DT"]["rate"]},
-                "OT DIFF": {"hours": self.ot_diff_input.text().strip(), "rate": self.excel_manager.labor_map["OT DIFF"]["rate"]},
-                "DT DIFF": {"hours": self.dt_diff_input.text().strip(), "rate": self.excel_manager.labor_map["DT DIFF"]["rate"]},
+                "RT": {
+                    "hours": self.rt_input.text().strip(), 
+                    "rate": self.excel_manager.labor_map["RT"]["rate"]
+                    },
+                "OT": {
+                    "hours": self.ot_input.text().strip(), 
+                    "rate": self.excel_manager.labor_map["OT"]["rate"]
+                    },
+                "DT": {
+                    "hours": self.dt_input.text().strip(), 
+                    "rate": self.excel_manager.labor_map["DT"]["rate"]
+                    },
+                "OT DIFF": {
+                    "hours": self.ot_diff_input.text().strip(), 
+                    "rate": self.excel_manager.labor_map["OT DIFF"]["rate"]
+                    },
+                "DT DIFF": {
+                    "hours": self.dt_diff_input.text().strip(), 
+                    "rate": self.excel_manager.labor_map["DT DIFF"]["rate"]
+                    },
             },
             "Materials": self.materials_to_add
         }
