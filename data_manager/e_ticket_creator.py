@@ -180,6 +180,7 @@ class ETicketCreator:
         ws[f'B{start_row}'] = material_object[0]["quantity"]
         ws[f'C{start_row}'] = material_object[0]["material"]
         ws[f'F{start_row}'] = round(self._safe_float(material_object[0]["sell price"]), 2)
+        ws[f'G{start_row}'] = material_object[0]["units"]
         ws[f'I{start_row}'] = f'=B{start_row} * F{start_row}'
         
         ws.row_dimensions[start_row].height = 25
@@ -199,6 +200,7 @@ class ETicketCreator:
             ws[f'B{current_row}'] = material["quantity"]
             ws[f'C{current_row}'] = material["material"]
             ws[f'F{current_row}'] = round(self._safe_float(material["sell price"]), 2)
+            ws[f'G{current_row}'] = material["units"]
             ws[f'I{current_row}'] = f'=B{current_row} * F{current_row}'
             
             ws.row_dimensions[current_row].height = 25
@@ -337,7 +339,9 @@ class ETicketCreator:
     
 
 if __name__ =="__main__":
-    test_path = "E-ticket Replacement EDITABLE - PYTHON.xlsx"
+    import os
+    
+    test_path = os.getcwd()
     
     
     incoming_ticket = {
@@ -362,16 +366,19 @@ if __name__ =="__main__":
           {
               'material': 'MAPEI PLANIPREP SC 10LB BAG', 
               'quantity': '3',
+              'units': 'BG',
               'sell price': '34.35'
           }, 
           {
               'material': 'MAPEI QUICK PATCH 25LB', 
               'quantity': '10',
+              'units': 'BG',
               'sell price': '34.87'
           },
           {
               'material': 'HEPA SANDER#302 & VAC #701', 
               'quantity': '1',
+              'units': 'EA',
               'sell price': '150'
           }
      ]

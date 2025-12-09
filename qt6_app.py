@@ -287,6 +287,8 @@ class AddTicketDialog(QDialog):
             
             sell_price_float = float(self.excel_manager.material_map[material]["Sell Per Unit"])
             sell_price = round(sell_price_float, 2)
+
+            units = self.excel_manager.material_map[material]["Units"]
             
             # Check if material already exists and update
             for i in range(self.materials_list.count()):
@@ -300,7 +302,7 @@ class AddTicketDialog(QDialog):
                     return
             
             # Add new material
-            material_data = {"material": material, "quantity": quantity, "sell price": sell_price}
+            material_data = {"material": material, "quantity": quantity, "units": units, "sell price": sell_price}
             self.materials_to_add.append(material_data)
             
             item = QListWidgetItem(f"{quantity} × {material} @ ${sell_price:.2f}")
@@ -311,7 +313,6 @@ class AddTicketDialog(QDialog):
             self.material_qt.clear()
             self.material_qt.setFocus()
             
-            # QMessageBox.information(self, "Success", f"Added {quantity} {material}")
             
         except ValueError:
             QMessageBox.warning(self, "Input Error", "Quantity must be a valid number")

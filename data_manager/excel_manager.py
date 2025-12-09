@@ -93,8 +93,9 @@ class ExcelManager:
             if pd.notna(material):
                 material_name = str(material).strip()
                 material_price = self._safe_float(price_row_values.iloc[col_idx])
+                material_units = self.dataframe.iloc[header_row - 2, (col_idx+ start_col)]
                 
-                self.material_map[material_name] = {"Sell Per Unit": material_price}
+                self.material_map[material_name] = {"Sell Per Unit": material_price, "Units": material_units}
         
         return
     
@@ -201,7 +202,7 @@ class ExcelManager:
         
     
 if __name__ =="__main__":
-    test_path = "027386 - DETAILED TICKET LISTING - PYTHON Copy.xlsx"
+    test_path = "JOB # - DETAILED TICKET LISTING (12-8-25).xlsx"
     
     manager = ExcelManager(test_path)
     
@@ -227,16 +228,19 @@ if __name__ =="__main__":
           {
               'material': '1/4 UNDERLAYMENT 4 X 5"', 
               'quantity': '3',
-              'sell price': '53.44'
+              'units': 'EA',
+              'sell price': '53.44',
           }, 
           {
               'material': 'MAPEI QUICK PATCH 25LB', 
               'quantity': '10',
+              'units': 'BG',
               'sell price': '34.87'
           },
           {
               'material': 'HEPA SANDER#302 & VAC #701', 
               'quantity': '1',
+              'units': 'EA',
               'sell price': '150'
           }
      ]
