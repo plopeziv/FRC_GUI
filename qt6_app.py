@@ -3,9 +3,11 @@ FRC Ticket GUI - QtPy Version (Compatible with PyQt5/PyQt6/PySide2/PySide6)
 A professional desktop application with native file dialogs and forms
 """
 import sys
+import os
 import re
 
 from data_manager.e_ticket_creator import ETicketCreator
+from data_manager.pdf_creator import excel_to_pdf
 
 from qtpy.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -453,6 +455,13 @@ class AddTicketDialog(QDialog):
             if self.use_eticket_checkbox.isChecked():
                 e_ticket_creator = ETicketCreator(self.selected_folder_path, ticket_data)
                 e_ticket_creator.load_ticket()
+                
+                # Save PDF
+                excel_file_path = os.path.join(
+                    self.selected_folder_path,
+                    f"{ticket_data['Job Number']} - {ticket_data['Ticket Number']}.xlsx"
+                )
+                excel_to_pdf(excel_file_path)
 
             QMessageBox.information(self, "Success", "✅ Ticket created and saved successfully!")
             self.accept()
