@@ -6,30 +6,40 @@ Created on Fri Dec 12 10:11:42 2025
 """
 
 import re
+import os
 import win32com.client as win32
 from datetime import datetime
 from pathlib import Path
 from PyPDF2 import PdfWriter
 
 def process_ticket(input_path, date, ticket_status):
-    pdf_location = excel_to_pdf(input_file)
+    pdf_location = excel_to_pdf(input_path)
     
-    job_folder = find_job_folder(input_file)
+    job_folder = find_job_folder(input_path)
     
     job_number = job_folder.name
-    ticket_number = extract_ticket_number(input_file)
+    ticket_number = extract_ticket_number(input_path)
     
     job_ticket = find_ticket_file(job_folder,  ticket_number)
     
     bid_folder = find_bid_folder(job_number) / "TICKETS"
+    bid_folder.mkdir(exist_ok=True)
     
     formatted_date = datetime.strptime(date, "%m/%d/%y").strftime("%m-%d-%y")
+    
+    display_status = "SIGNED" if ticket_status.upper() == "YES" else "UNSIGNED"
+
+    final_pdf_path = str(bid_folder / f"{job_number} {formatted_date} {ticket_number} {display_status}.pdf")
     
     merge_pdfs(
         str(pdf_location),
         str(job_ticket),
-        str(bid_folder / f"{job_number} {formatted_date} {ticket_number} {ticket_status}.pdf")
+        final_pdf_path
         )
+
+    print(f"Merged PDF saved at {final_pdf_path}")
+
+    os.startfile(final_pdf_path)
 
 def excel_to_pdf(input_path):
     input_path = Path(input_path).resolve()
@@ -91,12 +101,13 @@ def find_job_folder(input_path):
     
     folder_path = WORK_STATION / job_number
     
-    return folder_path
     
     if not folder_path.exists() or not folder_path.is_dir():    
         raise FileNotFoundError(
             f"{job_number} not found in Work Station folder"
         )
+        
+    return folder_path
 
 def find_bid_folder(job_number):
     BIDS_FOLDER = Path(r"\\FRC2\otherapps\Doc_Arch\Project Folders\0 Structure\Bids")

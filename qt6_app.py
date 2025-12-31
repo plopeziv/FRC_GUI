@@ -5,9 +5,10 @@ A professional desktop application with native file dialogs and forms
 import sys
 import os
 import re
+import traceback
 
 from data_manager.e_ticket_creator import ETicketCreator
-from data_manager.pdf_creator import excel_to_pdf
+from data_manager.pdf_creator import excel_to_pdf, process_ticket
 
 from qtpy.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -461,12 +462,14 @@ class AddTicketDialog(QDialog):
                     self.selected_folder_path,
                     f"{ticket_data['Job Number']} - {ticket_data['Ticket Number']}.xlsx"
                 )
-                excel_to_pdf(excel_file_path)
+                process_ticket(excel_file_path, ticket_data["Date"], ticket_data["Signature"])
+
 
             QMessageBox.information(self, "Success", "✅ Ticket created and saved successfully!")
             self.accept()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"❌ Failed to save ticket: {str(e)}")
+            traceback.print_exc()
 
 
 class FRCTicketGUI(QMainWindow):
