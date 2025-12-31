@@ -133,7 +133,11 @@ class ExcelManager:
         ticket_data = frc_ticket
         
         wb=load_workbook(path)
-        ws = wb.active
+        
+        if "TICKET TRACKING" not in wb.sheetnames:
+            raise ValueError("The Excel file does not contain a 'Ticket Tracking' sheet.")
+            
+        ws = wb["TICKET TRACKING"]
         
         last_data_row_index = self.header_row + len(self.data_rows) + 1
         new_row = last_data_row_index + 1
