@@ -450,9 +450,7 @@ class AddTicketDialog(QDialog):
         
         # Try to save
         try:
-            self.excel_manager.insert_ticket(ticket_data)
-            self.excel_manager.load()
-
+            # create and save e-ticket files
             if self.use_eticket_checkbox.isChecked():
                 e_ticket_creator = ETicketCreator(self.selected_folder_path, ticket_data)
                 e_ticket_creator.load_ticket()
@@ -464,6 +462,9 @@ class AddTicketDialog(QDialog):
                 )
                 process_ticket(excel_file_path, ticket_data["Date"], ticket_data["Signature"])
 
+            # Insert row to ticket listing
+            self.excel_manager.insert_ticket(ticket_data)
+            self.excel_manager.load()
 
             QMessageBox.information(self, "Success", "✅ Ticket created and saved successfully!")
             self.accept()
