@@ -20,6 +20,11 @@ from qtpy.QtWidgets import (
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QFont
 
+import numpy as np
+
+# Config needed for distribution
+np.__config__
+
 
 class InlineCompleterLineEdit(QLineEdit):
     def __init__(self, items, parent=None):
