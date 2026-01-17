@@ -225,13 +225,31 @@ class TicketDataService:
         self.ticket_listing["Total Sell"] = self.ticket_listing["Labor Sell"] + self.ticket_listing["Material Sell"]
         self.ticket_listing["Total Cost"] = self.ticket_listing["Labor Cost"] + self.ticket_listing["Material Cost"]
         
+    def calculate_nte_ratio(self):
+        if self.excel_manager.nte is None:
+            return "N/A"
+        
+        if self.ticket_listing is None:
+            raise ValueError("Ticket listing is not built yet.")
+                
+        type_col = "Type\n(Regular, Extra)"
+        
+        regular_tickets = self.ticket_listing[
+            self.ticket_listing[type_col].str.upper() == "REGULAR"
+        ]
+
+        total_sell_sum = regular_tickets["Total Sell"].sum()
+        
+        return total_sell_sum / self.excel_manager.nte if total_sell_sum else 0
+        
         
 
 
 if __name__ == "__main__":
-    test_path = "test_spread.xlsx"
+    test_path = "1234 - DETAILED TICKET LISTING (1-7-26).xlsx"
     
     manager = TicketDataService(test_path)
+    manager.calculate_nte_ratio()
     
     df1 = manager.labor_ticket_summary
     df2 = manager.material_ticket_summary

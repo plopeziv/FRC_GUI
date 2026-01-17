@@ -551,7 +551,17 @@ class FRCTicketGUI(QMainWindow):
         
         # Add row button
         btn_layout = QHBoxLayout()
-        btn_layout.addStretch()
+
+        # NTE Info
+        nte_info_layout = QHBoxLayout()
+        self.nte_info_label = QLabel("NTE Percentage:")
+        self.nte_info_percentage = QLabel()
+        self.update_nte_badge()
+        nte_info_layout.addWidget(self.nte_info_label)
+        nte_info_layout.addWidget(self.nte_info_percentage)
+        nte_info_layout.addStretch()
+        btn_layout.addLayout(nte_info_layout)
+
         self.add_row_btn = QPushButton("➕ Add Row")
         self.add_row_btn.clicked.connect(self.add_ticket_row)
         self.add_row_btn.setMinimumHeight(35)
@@ -612,7 +622,8 @@ class FRCTicketGUI(QMainWindow):
             # Enable tabs and add row button
             self.tabs.setEnabled(True)
             self.add_row_btn.setEnabled(True)
-            
+            self.update_nte_badge()
+
             # Populate all tables
             self.populate_ticket_listing()
             self.populate_labor_summary()
@@ -623,6 +634,7 @@ class FRCTicketGUI(QMainWindow):
             QMessageBox.information(self, "Success", "Load Successful!")
             
         except Exception as e:
+            traceback.print_exc()
             QMessageBox.critical(self, "Error", f"Error loading file: {str(e)}")
     
     def populate_table(self, table, df, currency_cols=[], currency_rows=[]):
@@ -700,6 +712,44 @@ class FRCTicketGUI(QMainWindow):
                 "Material Sell", 
                 "Material Cost", 
             ])
+
+    def update_nte_badge(self):
+        if not self.manager:
+            self.nte_info_percentage.setText(f"0%")
+            return
+
+        nte = self.ticket_data_service.calculate_nte_ratio() or 0
+
+        percent = round(nte * 100, 1)
+
+        self.nte_info_percentage.setText(f"{percent}%")
+        self.nte_info_percentage.setAlignment(Qt.AlignCenter)
+        self.nte_info_percentage.setMaximumHeight(25) 
+
+        # Optional color scale
+        if percent != percent:
+            bg="transparent"
+            
+        elif percent < 60:
+            bg = "#2ecc71"
+
+        elif percent < 80:
+            bg = "#f1c40f"
+
+        elif percent < 90:
+            bg = "#e67e22"
+        else:
+            bg = "#ff6666"
+
+        self.nte_info_percentage.setStyleSheet(f"""
+            QLabel {{
+                background: {bg};
+                color: black;
+                border-radius: 4px;
+                padding: 4px;
+                font-weight: bold;
+            }}
+        """)
 
     def format_currency(self, value):
         try:

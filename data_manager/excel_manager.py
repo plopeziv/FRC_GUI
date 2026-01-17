@@ -13,6 +13,7 @@ class ExcelManager:
         self.materials = [];
         self.material_map = {}
         self.labor_map = {}
+        self.nte = None
         self.headers = []
         self.data_rows = [];
         self.header_row = 13
@@ -32,6 +33,7 @@ class ExcelManager:
         self.job_number = self.dataframe.iloc[1,8]
         self.job_name = self.dataframe.iloc[2,8]
         self. job_address = self.dataframe.iloc[3,8]
+        self.nte = self.dataframe.iloc[1, 5]
 
         self.get_headers()
         
@@ -206,7 +208,7 @@ class ExcelManager:
         
     
 if __name__ =="__main__":
-    test_path = "JOB # - DETAILED TICKET LISTING (12-8-25).xlsx"
+    test_path = "1234 - DETAILED TICKET LISTING (1-7-26).xlsx"
     
     manager = ExcelManager(test_path)
     
@@ -250,5 +252,5 @@ if __name__ =="__main__":
      ]
     }
     
-    manager.insert_ticket(incoming_ticket)
+    # manager.insert_ticket(incoming_ticket)
         
