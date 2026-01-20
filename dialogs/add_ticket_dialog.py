@@ -21,6 +21,8 @@ class AddTicketDialog(QDialog):
         self.setWindowTitle("Add New Ticket")
         self.setMinimumWidth(800)
         self.setMinimumHeight(700)
+
+        self.setWindowFlags(Qt.Window | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
         
         # Create scroll area for form
         scroll = QScrollArea()

@@ -9,6 +9,7 @@ np.__config__
 import traceback
 
 from dialogs.add_ticket_dialog import AddTicketDialog
+from dialogs.update_ticket_dialog import UpdateTicketDialog
 
 from qtpy.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -16,7 +17,7 @@ from qtpy.QtWidgets import (
     QTabWidget, QMessageBox, QHeaderView, QDialog
 )
 from qtpy.QtGui import QFont
-from qtpy.QtCore import Qt1
+from qtpy.QtCore import Qt
 
 
 class FRCTicketGUI(QMainWindow):
@@ -105,6 +106,7 @@ class FRCTicketGUI(QMainWindow):
 
         # Update Row Button
         self.update_row_btn = QPushButton("✏️ Update Row")
+        self.update_row_btn.clicked.connect(self.update_ticket_row)
         self.update_row_btn.setMinimumHeight(35)
         btn_layout.addWidget(self.update_row_btn)
 
@@ -312,6 +314,12 @@ class FRCTicketGUI(QMainWindow):
         # PyQt6/PySide6 style
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.load_data()
+
+    def update_ticket_row(self):
+        """Open dialog to add a new ticket row"""        
+        dialog = UpdateTicketDialog(self.manager, self)
+
+        dialog.exec()
 
 
 
