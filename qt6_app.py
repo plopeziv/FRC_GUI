@@ -6,6 +6,8 @@ import sys
 import numpy as np   # PyInstaller runtime anchor
 np.__config__
 
+import traceback
+
 from dialogs.add_ticket_dialog import AddTicketDialog
 
 from qtpy.QtWidgets import (
@@ -14,6 +16,7 @@ from qtpy.QtWidgets import (
     QTabWidget, QMessageBox, QHeaderView, QDialog
 )
 from qtpy.QtGui import QFont
+from qtpy.QtCore import Qt1
 
 
 class FRCTicketGUI(QMainWindow):
@@ -100,10 +103,17 @@ class FRCTicketGUI(QMainWindow):
         nte_info_layout.addStretch()
         btn_layout.addLayout(nte_info_layout)
 
+        # Update Row Button
+        self.update_row_btn = QPushButton("✏️ Update Row")
+        self.update_row_btn.setMinimumHeight(35)
+        btn_layout.addWidget(self.update_row_btn)
+
+        # Add Row Button
         self.add_row_btn = QPushButton("➕ Add Row")
         self.add_row_btn.clicked.connect(self.add_ticket_row)
         self.add_row_btn.setMinimumHeight(35)
         btn_layout.addWidget(self.add_row_btn)
+
         layout.addLayout(btn_layout)
         
         # Table
