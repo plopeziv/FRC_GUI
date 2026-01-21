@@ -1,4 +1,7 @@
 import os, re, traceback
+
+from dialogs.add_ticket_dialog import AddTicketDialog
+
 from qtpy.QtWidgets import *
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QFont
@@ -6,8 +9,10 @@ from qtpy.QtGui import QFont
 class UpdateTicketDialog(QDialog):
     """Dialog for adding a new ticket"""
     
-    def __init__(self, excel_manager, parent=None):
+    def __init__(self, ticket_data_service, excel_manager, parent=None):
         super().__init__(parent)
+        self.ticket_data_service = ticket_data_service
+        self.excel_manager = excel_manager
         self.init_ui()
     
     def init_ui(self):
@@ -53,11 +58,61 @@ class UpdateTicketDialog(QDialog):
         self.submit_btn = QPushButton("Submit")
         self.cancel_btn = QPushButton("Close")
 
+        self.submit_btn.clicked.connect(self.onSubmit)
         self.cancel_btn.clicked.connect(self.reject)
+        
 
         button_layout.addWidget(self.submit_btn)
         button_layout.addWidget(self.cancel_btn)
 
         layout.addStretch()
         layout.addLayout(button_layout)
+
+    def onSubmit(self):
+        ticket_number = self.ticket_input.text().strip()
+
+        if not ticket_number:
+            QMessageBox.warning(self, "Input Required", "Please enter a ticket number.")
+            return
+
+        df = self.ticket_data_service.ticket_listing
+
+        if ticket_number in df.index:
+            ticket = self.prepTicket(ticket_number)
+            dialog=AddTicketDialog(self.excel_manager, ticket, parent=self)
+            dialog.exec()
+
+        else:
+            QMessageBox.warning(self, "Not Found", f"Ticket {ticket_number} Does Not Exist In Listing.")
+            print(False)
+    
+    def prepTicket(self, ticket_number):
+        blank_ticket = {
+            "Ticket Number": ticket_number,
+            "Date": self.ticket_data_service.ticket_listing.loc[ticket_number]["Date"],
+            "Signature": self.ticket_data_service.ticket_listing.loc[ticket_number]["Signed"],
+            "Type": self.ticket_data_service.ticket_listing.loc[ticket_number]["Type\n(Regular, Extra)"],
+            "Description": self.ticket_data_service.ticket_listing.loc[ticket_number]["Description"],
+            "Labor": {
+                "RT": {
+                    "hours": self.ticket_data_service.labor_ticket_summary.loc[ticket_number]["RT"], 
+                    },
+                "OT": {
+                    "hours": self.ticket_data_service.labor_ticket_summary.loc[ticket_number]["OT"],  
+                    },
+                "DT": {
+                    "hours": self.ticket_data_service.labor_ticket_summary.loc[ticket_number]["DT"],  
+                    },
+                "OT DIFF": {
+                    "hours": self.ticket_data_service.labor_ticket_summary.loc[ticket_number]["OT DIFF "],  
+                    },
+                "DT DIFF": {
+                    "hours": self.ticket_data_service.labor_ticket_summary.loc[ticket_number]["DT DIFF "],  
+                    },
+            },
+            "Materials": []
+        }
+
+        return blank_ticket
+
         

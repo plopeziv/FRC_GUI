@@ -309,7 +309,7 @@ class FRCTicketGUI(QMainWindow):
     
     def add_ticket_row(self):
         """Open dialog to add a new ticket row"""        
-        dialog = AddTicketDialog(self.manager, self)
+        dialog = AddTicketDialog(self.manager, parent=self)
 
         # PyQt6/PySide6 style
         if dialog.exec() == QDialog.DialogCode.Accepted:
@@ -317,7 +317,7 @@ class FRCTicketGUI(QMainWindow):
 
     def update_ticket_row(self):
         """Open dialog to add a new ticket row"""        
-        dialog = UpdateTicketDialog(self.manager, self)
+        dialog = UpdateTicketDialog(self.ticket_data_service, self.manager, self)
 
         dialog.exec()
 

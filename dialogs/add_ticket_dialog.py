@@ -10,12 +10,15 @@ from controls.inline_completer_line_edit import InlineCompleterLineEdit
 class AddTicketDialog(QDialog):
     """Dialog for adding a new ticket"""
     
-    def __init__(self, excel_manager, parent=None):
+    def __init__(self, excel_manager, form_ticket_data=None, parent=None):
         super().__init__(parent)
         self.excel_manager = excel_manager
+        self.form_ticket_data = form_ticket_data
         self.available_materials = list(self.excel_manager.material_map.keys())
         self.materials_to_add = []
         self.init_ui()
+
+        self.populate_form()
     
     def init_ui(self):
         self.setWindowTitle("Add New Ticket")
@@ -211,6 +214,29 @@ class AddTicketDialog(QDialog):
         # Set scroll area as main layout
         dialog_layout = QVBoxLayout(self)
         dialog_layout.addWidget(scroll)
+
+    def populate_form(self):
+        if self.form_ticket_data:
+            print(self.form_ticket_data)
+
+            #Ticket Info
+            self.ticket_number.setText(self.form_ticket_data["Ticket Number"])
+            self.date_input.setText(self.form_ticket_data["Date"])
+
+            self.signature.setCurrentText(self.form_ticket_data["Signature"])
+            self.ticket_type.setCurrentText(self.form_ticket_data["Type"])
+
+            self.description.setText(self.form_ticket_data["Description"])
+
+            #Labor
+            self.rt_input.setText(str(self.form_ticket_data.get("Labor", {}).get("RT", {}).get("hours", "")))
+            self.ot_input.setText(str(self.form_ticket_data.get("Labor", {}).get("OT", {}).get("hours", "")))
+            self.dt_input.setText(str(self.form_ticket_data.get("Labor", {}).get("DT", {}).get("hours", "")))
+            self.ot_diff_input.setText(str(self.form_ticket_data.get("Labor", {}).get("OT DIFF", {}).get("hours", "")))
+            self.dt_diff_input.setText(str(self.form_ticket_data.get("Labor", {}).get("DT DIFF", {}).get("hours", "")))
+        else:
+            print("No Form Ticket Data Was Found")
+        
     
     def add_material(self):
         """Add material to the list"""
