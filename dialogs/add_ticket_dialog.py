@@ -69,7 +69,7 @@ class AddTicketDialog(QDialog):
         ticket_form.addRow("Signature:", self.signature)
         
         self.ticket_type = QComboBox()
-        self.ticket_type.addItems(["REGULAR", "EXTRA", "MISC INSTALL"])
+        self.ticket_type.addItems(["REGULAR", "EXTRA", "MISC INSTALL", "INTERNAL"])
         ticket_form.addRow("Type:", self.ticket_type)
         
         self.installer_input = QLineEdit()
