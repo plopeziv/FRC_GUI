@@ -84,9 +84,10 @@ class ETicketCreator:
         ws['B8'] = self.incoming_ticket["Work Location"]
         
         ws['H4']= self.incoming_ticket["Ticket Number"]
-        ws['H5']= pd.to_datetime(datetime.today(), format="%m/%d/%y", errors="coerce")
-            
-        ws['H6']= pd.to_datetime(self.incoming_ticket["Date"], format="%m/%d/%y", errors="coerce")        
+        ws['H5']= pd.to_datetime(datetime.today(), format="%m/%d/%Y", errors="coerce")
+       
+        parsed_date = pd.to_datetime(self.incoming_ticket["Date"], errors="coerce")
+        ws['H6']= parsed_date.strftime("%#m/%#d/%Y")
         
         ws['B10']= self.incoming_ticket["Description"]
         

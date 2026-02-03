@@ -76,11 +76,20 @@ class UpdateTicketDialog(QDialog):
             return
 
         df = self.ticket_data_service.ticket_listing
+        # make sure all ticket numbers are in string format
+        df.index = df.index.map(lambda x: str(x).strip())
+
 
         if ticket_number in df.index:
             ticket = self.prepTicket(ticket_number)
             dialog=AddTicketDialog(self.excel_manager, ticket, parent=self)
-            dialog.exec()
+
+            # Make sure ticket UpdateDialog closes with AddTicketDialog
+            result = dialog.exec()
+            if result == QDialog.Accepted:
+                self.accept()
+            else:
+                self.reject()
 
         else:
             QMessageBox.warning(self, "Not Found", f"Ticket {ticket_number} Does Not Exist In Listing.")

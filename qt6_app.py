@@ -319,7 +319,8 @@ class FRCTicketGUI(QMainWindow):
         """Open dialog to add a new ticket row"""        
         dialog = UpdateTicketDialog(self.ticket_data_service, self.manager, self)
 
-        dialog.exec()
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.load_data()
 
 
 

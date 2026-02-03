@@ -1,11 +1,15 @@
 import os, re, traceback
+
 from qtpy.QtWidgets import *
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QFont
 
 from data_manager.e_ticket_creator import ETicketCreator
 from data_manager.pdf_creator import process_ticket
+
 from controls.inline_completer_line_edit import InlineCompleterLineEdit
+
+from utils.date_utils import parse_string_date
 
 class AddTicketDialog(QDialog):
     """Dialog for adding a new ticket"""
@@ -217,16 +221,15 @@ class AddTicketDialog(QDialog):
 
     def populate_form(self):
         if self.form_ticket_data:
-            print(self.form_ticket_data)
 
             #Ticket Info
             self.ticket_number.setText(self.form_ticket_data["Ticket Number"])
             self.date_input.setText(self.form_ticket_data["Date"])
 
-            self.signature.setCurrentText(self.form_ticket_data["Signature"])
-            self.ticket_type.setCurrentText(self.form_ticket_data["Type"])
+            self.signature.setCurrentText(str(self.form_ticket_data["Signature"]))
+            self.ticket_type.setCurrentText(str(self.form_ticket_data["Type"]))
 
-            self.description.setText(self.form_ticket_data["Description"])
+            self.description.setText(str(self.form_ticket_data["Description"]))
 
             #Labor
             self.rt_input.setText(str(self.form_ticket_data.get("Labor", {}).get("RT", {}).get("hours", "")))
@@ -337,9 +340,9 @@ class AddTicketDialog(QDialog):
         errors = []
         
         # Validate date
-        date_str = ticket_data["Date"]
-        if not re.match(r"^\d{2}/\d{2}/\d{2}$", date_str):
-            errors.append("Work Date: Must be in MM/DD/YY format")
+        parsed_str = parse_string_date(ticket_data["Date"])
+        if not parsed_str:
+            errors.append("Work Date: Must be in a Month/Date/Year format")
         
         # Validate labor fields
         labor = ticket_data["Labor"]

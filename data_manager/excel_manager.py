@@ -118,12 +118,17 @@ class ExcelManager:
 
     
     def get_data_rows (self):
+        ticket_number_col = 8
         
         for index in range(self.header_row+1, len(self.dataframe)):
             data_row = self.dataframe.iloc[index]
             
             if self.is_row_empty(data_row):
                 break
+
+            #Coerce index/ticket_number into a string 
+            if pd.notna(data_row[ticket_number_col]):
+                data_row[ticket_number_col] = str(data_row[ticket_number_col]).strip()
             
             self.data_rows.append(data_row)
             
@@ -132,26 +137,21 @@ class ExcelManager:
     
     def insert_ticket (self, frc_ticket):
         path = self.ensure_xlsx_copy(self.file_path)
-        ticket_data = frc_ticket
+           
+        ws, wb = self._open_worksheet(path, "TICKET TRACKING")
         
-        wb=load_workbook(path)
+
         
-        if "TICKET TRACKING" not in wb.sheetnames:
-            raise ValueError("The Excel file does not contain a 'Ticket Tracking' sheet.")
-            
-        ws = wb["TICKET TRACKING"]
+        new_row = self.find_ticket_row(ws, frc_ticket["Ticket Number"])
         
-        last_data_row_index = self.header_row + len(self.data_rows) + 1
-        new_row = last_data_row_index + 1
-        
-        self._insert_ticket_info(ws, new_row, ticket_data)
+        self._insert_ticket_info(ws, new_row, frc_ticket)
         
         
-        self._insert_labor(ws, new_row, ticket_data["Labor"])
+        self._insert_labor(ws, new_row, frc_ticket["Labor"])
         
-        self._insert_materials(ws, new_row, ticket_data["Materials"])
+        self._insert_materials(ws, new_row, frc_ticket["Materials"])
         
-        wb.save(self.file_path)
+        wb.save(path)
         wb.close()
         
     def _safe_float(self, incoming_value):
@@ -160,6 +160,15 @@ class ExcelManager:
             return float(incoming_value) if incoming_value not in ("none", "", "nan") else 0.0
         except(ValueError, TypeError):
             return 0.0
+        
+    def _open_worksheet(self, path, tab_title):
+        wb = load_workbook(path)
+        
+        if tab_title not in wb.sheetnames:
+            wb.close()
+            raise ValueError(f"The Excel file does not contain a '{tab_title}' sheet.")
+            
+        return wb[tab_title], wb
         
     def _insert_ticket_info(self, worksheet, ticket_row, ticket_object):
         worksheet.cell(row=ticket_row, column=7, value=ticket_object["Date"])
@@ -204,6 +213,23 @@ class ExcelManager:
                 df.to_excel(new_path, index=False, header=False)
             return str(new_path)
         return str(path)
+    
+    def find_ticket_row(self, worksheet, ticket_number):
+        ticket_number = str(ticket_number).strip()        
+        
+        row = self.header_row + 2
+        
+        while True:
+            cell_value = worksheet.cell(row=row, column=9).value
+            
+            if cell_value in (None, "", " "):
+                return row
+            
+            if str(cell_value).strip() == ticket_number:
+                return row
+
+            row += 1
+            
         
         
     
