@@ -82,7 +82,7 @@ class ExcelManager:
             raise ValueError("Excel file not loaded yet. Call load() first.")
             
         row_values = self.dataframe.iloc[header_row, start_col:]
-        self.materials = [material for material in row_values if pd.notna(material)]
+        self.materials = [str(material).strip() for material in row_values if pd.notna(material)]
         
         return self.materials
     
@@ -100,6 +100,26 @@ class ExcelManager:
                 self.material_map[material_name] = {"Sell Per Unit": material_price, "Units": material_units}
         
         return
+    
+    def get_row_materials(self, header_row=6, start_col=67, check_row=0):
+        job_row = self.dataframe.iloc[(self.header_row + check_row), start_col:]
+
+        materials_to_add = []
+        for col_idx, quantity in enumerate(job_row):
+            if pd.notna(quantity):
+                idx_df = start_col + col_idx
+                
+                material = str(self.dataframe.iloc[header_row, idx_df]).strip()
+                units = self.dataframe.iloc[header_row-2, idx_df]
+                sell_price = self.dataframe.iloc[header_row+4, idx_df]
+
+                materials_to_add.append({"material": material, "quantity": quantity, "units": units, "sell price": sell_price})
+
+                print(f"material:{material}, quantity: {quantity}, units: {units}, sell price: {sell_price}")
+        
+        return materials_to_add
+
+
     
     def get_labor_map(self):
         rt = self._safe_float(self.dataframe.iloc[10, 12])

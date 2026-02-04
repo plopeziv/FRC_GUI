@@ -237,8 +237,30 @@ class AddTicketDialog(QDialog):
             self.dt_input.setText(str(self.form_ticket_data.get("Labor", {}).get("DT", {}).get("hours", "")))
             self.ot_diff_input.setText(str(self.form_ticket_data.get("Labor", {}).get("OT DIFF", {}).get("hours", "")))
             self.dt_diff_input.setText(str(self.form_ticket_data.get("Labor", {}).get("DT DIFF", {}).get("hours", "")))
+
+            #Materials
+            material_data = self.excel_manager.get_row_materials(check_row=3)
+            self.materials_to_add.extend(material_data)
+
+            for material in self.materials_to_add:
+                item = QListWidgetItem(f"{material["quantity"]} x {material["material"]} @ ${float(material["sell price"]):.2f}")
+                item.setData(Qt.UserRole, material)
+                item.setData(Qt.UserRole, material_data)
+                self.materials_list.addItem(item)
+
         else:
             print("No Form Ticket Data Was Found")
+
+    def refresh_materials_list(self):
+        self.materials_list.clear()
+
+        for material in self.materials_to_add:          
+            item = QListWidgetItem(
+                f"{material["quantity"]} × {material["material"]} @ ${material["sell price"]:.2f}"
+                )
+            item.setData(Qt.UserRole, material)
+            self.materials_list.addItem(item)
+
         
     
     def add_material(self):
@@ -270,23 +292,21 @@ class AddTicketDialog(QDialog):
             units = self.excel_manager.material_map[material]["Units"]
             
             # Check if material already exists and update
-            for i in range(self.materials_list.count()):
-                item = self.materials_list.item(i)
-                item_data = item.data(Qt.UserRole)
-                if item_data['material'] == material:
-                    # Update existing
-                    item_data['quantity'] = quantity
-                    item.setText(f"{quantity} × {material} @ ${sell_price:.2f}")
-                    QMessageBox.information(self, "Updated", f"Updated {material} quantity to {quantity}")
-                    return
-            
-            # Add new material
-            material_data = {"material": material, "quantity": quantity, "units": units, "sell price": sell_price}
-            self.materials_to_add.append(material_data)
-            
-            item = QListWidgetItem(f"{quantity} × {material} @ ${sell_price:.2f}")
-            item.setData(Qt.UserRole, material_data)
-            self.materials_list.addItem(item)
+            existing = next((m for m in self.materials_to_add if m["material"] == material), None)
+
+            if existing:
+                existing["quantity"] = quantity
+                QMessageBox.information(self, "Updated", f"Updated {material} quantity to {quantity}")
+            else:
+                self.materials_to_add.append({
+                    "material": material,
+                    "quantity": quantity,
+                    "units": units,
+                    "sell_price": sell_price
+                })
+
+            # 🔹 Refresh UI from model
+            self.refresh_materials_list()
             
             # Clear inputs
             self.material_qt.clear()
@@ -298,12 +318,10 @@ class AddTicketDialog(QDialog):
 
     def remove_material(self):
         """Remove selected material from the list"""
-        selected_items = self.material_input.text().strip()
-        if not selected_items:
+        material_name = self.material_input.text().strip()
+        if not material_name:
             QMessageBox.warning(self, "No Selection", "Please select a material to remove")
             return
-
-        material_name = selected_items
 
         # Check if material exists in the underlying list
         if not any(m['material'] == material_name for m in self.materials_to_add):
@@ -315,16 +333,11 @@ class AddTicketDialog(QDialog):
             m for m in self.materials_to_add if m['material'] != material_name
         ]
 
-        # Remove from QListWidget
-        for i in range(self.materials_list.count() - 1, -1, -1):
-            item = self.materials_list.item(i)  # QListWidgetItem
-            item_data = item.data(Qt.UserRole)   # stored dictionary
-            if item_data['material'] == material_name:
-                self.materials_list.takeItem(i)
 
-        QMessageBox.information(self, "Removed", f"Removed '{material_name}'")
-        
+        self.refresh_materials_list()
+
         self.material_input.clear()
+        self.material_qt.setFocus()
 
     def select_output_folder(self):
         """Open a folder picker and store the selected directory"""
