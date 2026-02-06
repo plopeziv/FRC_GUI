@@ -239,7 +239,8 @@ class AddTicketDialog(QDialog):
             self.dt_diff_input.setText(str(self.form_ticket_data.get("Labor", {}).get("DT DIFF", {}).get("hours", "")))
 
             #Materials
-            material_data = self.excel_manager.get_row_materials(check_row=3)
+            check_row = self.excel_manager.find_ticket_row_df(self.form_ticket_data["Ticket Number"])
+            material_data = self.excel_manager.get_row_materials(check_row=check_row)
             self.materials_to_add.extend(material_data)
 
             for material in self.materials_to_add:
@@ -302,7 +303,7 @@ class AddTicketDialog(QDialog):
                     "material": material,
                     "quantity": quantity,
                     "units": units,
-                    "sell_price": sell_price
+                    "sell price": sell_price
                 })
 
             # 🔹 Refresh UI from model

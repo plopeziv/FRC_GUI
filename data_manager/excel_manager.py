@@ -101,8 +101,8 @@ class ExcelManager:
         
         return
     
-    def get_row_materials(self, header_row=6, start_col=67, check_row=0):
-        job_row = self.dataframe.iloc[(self.header_row + check_row), start_col:]
+    def get_row_materials(self, check_row, header_row=6, start_col=67):
+        job_row = self.dataframe.iloc[check_row, start_col:]
 
         materials_to_add = []
         for col_idx, quantity in enumerate(job_row):
@@ -162,7 +162,7 @@ class ExcelManager:
         
 
         
-        new_row = self.find_ticket_row(ws, frc_ticket["Ticket Number"])
+        new_row = self.find_ticket_row_ws(ws, frc_ticket["Ticket Number"])
         
         self._insert_ticket_info(ws, new_row, frc_ticket)
         
@@ -234,7 +234,7 @@ class ExcelManager:
             return str(new_path)
         return str(path)
     
-    def find_ticket_row(self, worksheet, ticket_number):
+    def find_ticket_row_ws(self, worksheet, ticket_number):
         ticket_number = str(ticket_number).strip()        
         
         row = self.header_row + 2
@@ -249,8 +249,27 @@ class ExcelManager:
                 return row
 
             row += 1
+
+    def find_ticket_row_df(self, ticket_number):
+        # DF and WS rows are the same. Use this function for outside of the worksheet.
+
+        if self.dataframe is None:
+            raise ValueError("Excel file not loaded yet. Call load() first.")
+
+        ticket_number = str(ticket_number).strip()
+
+        row = self.header_row + 2
+
+        while row < len(self.dataframe):
+            print(row)
+            cell_value = self.dataframe.loc[row, 8]
+
+            if str(cell_value).strip() == ticket_number:
+                return row
             
+            row += 1
         
+        return row
         
     
 if __name__ =="__main__":
