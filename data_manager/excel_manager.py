@@ -106,7 +106,7 @@ class ExcelManager:
 
         materials_to_add = []
         for col_idx, quantity in enumerate(job_row):
-            if pd.notna(quantity):
+            if pd.notna(quantity) and quantity:
                 idx_df = start_col + col_idx
                 
                 material = str(self.dataframe.iloc[header_row, idx_df]).strip()
@@ -114,8 +114,6 @@ class ExcelManager:
                 sell_price = self.dataframe.iloc[header_row+4, idx_df]
 
                 materials_to_add.append({"material": material, "quantity": quantity, "units": units, "sell price": sell_price})
-
-                print(f"material:{material}, quantity: {quantity}, units: {units}, sell price: {sell_price}")
         
         return materials_to_add
 
@@ -205,6 +203,11 @@ class ExcelManager:
         worksheet.cell(row=ticket_row, column=23, value = self._safe_float(labor_object["DT DIFF"]["hours"]))
         
     def _insert_materials(self, worksheet, material_row, materials):
+        # material row needs to be translated to the dataframe row
+        previous_materials = self.get_row_materials((material_row-1))
+        
+        materials = self._append_removed_materials(previous_materials, materials)
+        
         for material_object in materials:
             material_name = material_object["material"].strip()
             material_quantity = self._safe_float(material_object["quantity"])
@@ -216,6 +219,19 @@ class ExcelManager:
                 
             except ValueError:
                 print(F"{material_name} not found in headers.... Skipped!")
+                
+    def _append_removed_materials(self, previous_materials, new_materials):
+        new_keys = {new_material["material"].strip() for new_material in new_materials}
+        
+        for previous_material in previous_materials:
+            previous_name = previous_material["material"].strip()
+            if previous_name not in new_keys:
+                prev_copy = previous_material.copy()
+                prev_copy["quantity"]=""
+                new_materials.append(prev_copy)
+                
+        return new_materials
+                
 
         
         
@@ -261,7 +277,6 @@ class ExcelManager:
         row = self.header_row + 2
 
         while row < len(self.dataframe):
-            print(row)
             cell_value = self.dataframe.loc[row, 8]
 
             if str(cell_value).strip() == ticket_number:

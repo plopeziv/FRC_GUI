@@ -243,11 +243,7 @@ class AddTicketDialog(QDialog):
             material_data = self.excel_manager.get_row_materials(check_row=check_row)
             self.materials_to_add.extend(material_data)
 
-            for material in self.materials_to_add:
-                item = QListWidgetItem(f"{material["quantity"]} x {material["material"]} @ ${float(material["sell price"]):.2f}")
-                item.setData(Qt.UserRole, material)
-                item.setData(Qt.UserRole, material_data)
-                self.materials_list.addItem(item)
+            self.refresh_materials_list()
 
         else:
             print("No Form Ticket Data Was Found")
@@ -255,7 +251,7 @@ class AddTicketDialog(QDialog):
     def refresh_materials_list(self):
         self.materials_list.clear()
 
-        for material in self.materials_to_add:          
+        for material in self.materials_to_add:       
             item = QListWidgetItem(
                 f"{material["quantity"]} × {material["material"]} @ ${material["sell price"]:.2f}"
                 )
