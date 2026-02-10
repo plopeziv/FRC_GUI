@@ -102,6 +102,9 @@ class ExcelManager:
         return
     
     def get_row_materials(self, check_row, header_row=6, start_col=67):
+        if check_row < 0 or check_row >= len(self.dataframe):
+            return []
+
         job_row = self.dataframe.iloc[check_row, start_col:]
 
         materials_to_add = []
