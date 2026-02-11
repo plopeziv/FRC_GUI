@@ -102,6 +102,7 @@ class ExcelManager:
         return
     
     def get_row_materials(self, check_row, header_row=6, start_col=67):
+        print("df length: ", len(self.dataframe))
         if check_row < 0 or check_row >= len(self.dataframe):
             return []
 
@@ -277,7 +278,7 @@ class ExcelManager:
 
         ticket_number = str(ticket_number).strip()
 
-        row = self.header_row + 2
+        row = self.header_row
 
         while row < len(self.dataframe):
             cell_value = self.dataframe.loc[row, 8]
