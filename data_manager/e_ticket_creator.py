@@ -7,10 +7,16 @@ Created on Sat Nov 22 12:04:44 2025
 from pathlib import Path
 
 class ETicketCreator:
-    def __init__(self, file_path=None, incoming_ticket=None):
+    def __init__(
+        self, 
+        file_path=None, 
+        incoming_ticket=None,
+        template_name="E-ticket Replacement EDITABLE - PYTHON.xlsx"
+    ):
         self.file_path = file_path;
         self.workbook = None
         self.incoming_ticket = incoming_ticket;
+        self.template_name = template_name;
         
     def load_ticket(self):
         from openpyxl import load_workbook
@@ -18,7 +24,7 @@ class ETicketCreator:
         if not self.file_path:
             raise ValueError("No folder provided!")
             
-        path = Path(self.file_path) / "E-ticket Replacement EDITABLE - PYTHON.xlsx"
+        path = Path(self.file_path) / self.template_name
         if not path.exists():
             raise FileNotFoundError(f"File not found: {path}")
         
