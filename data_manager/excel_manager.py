@@ -102,7 +102,6 @@ class ExcelManager:
         return
     
     def get_row_materials(self, check_row, header_row=6, start_col=67):
-        print("df length: ", len(self.dataframe))
         if check_row < 0 or check_row >= len(self.dataframe):
             return []
 

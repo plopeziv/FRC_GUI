@@ -234,7 +234,7 @@ class ETicketCreator:
 
         
     def _find_material_row(self, ws, search_term="Material Used:", column="A"):
-        for row in range(1,50):
+        for row in range(1,80):
             check_value = ws[f'{column}{row}'].value
             if check_value and search_term in str(check_value):
                 return row
