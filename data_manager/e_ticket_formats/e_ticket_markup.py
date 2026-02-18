@@ -1,11 +1,13 @@
 import sys
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from e_ticket_creator import ETicketCreator
+from data_manager.e_ticket_creator import ETicketCreator
+from config.equipment_lists import EXCLUDED_EQUIPMENT
 
 # from data_manager.e_ticket_creator import ETicketCreator
+# from config.equipment_lists import EXCLUDED_EQUIPMENT
 
 class ETicketMarkup(ETicketCreator):
     def __init__(
@@ -42,7 +44,7 @@ class ETicketMarkup(ETicketCreator):
         
         grouped_materials = self.incoming_ticket["Materials"]
         
-        excluded_equipment = {"HEPA SANDER#302 & VAC #701", "TURBO STRIPPER # 203"}
+        excluded_equipment = EXCLUDED_EQUIPMENT
       
         # ORGANIZE MATERIALS INTO EQUIPMENT AND MATERIALS
         equipment_object = []

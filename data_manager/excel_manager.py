@@ -234,9 +234,7 @@ class ExcelManager:
                 new_materials.append(prev_copy)
                 
         return new_materials
-                
-
-        
+                    
         
     def ensure_xlsx_copy(self, path):
         """
