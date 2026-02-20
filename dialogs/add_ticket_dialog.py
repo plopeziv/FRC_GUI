@@ -7,6 +7,8 @@ from qtpy.QtGui import QFont
 from data_manager.e_ticket_creator import ETicketCreator
 from data_manager.pdf_creator import process_ticket
 
+from config.template_registry import TEMPLATES
+
 from controls.inline_completer_line_edit import InlineCompleterLineEdit
 
 from utils.date_utils import parse_string_date
@@ -48,6 +50,58 @@ class AddTicketDialog(QDialog):
         title_font.setBold(True)
         title.setFont(title_font)
         main_layout.addWidget(title)
+
+        #Template Section
+        template_selector_layout = QHBoxLayout()
+
+        template_title_label = QLabel("Use Template: ")
+        template_title_font = QFont()
+        template_title_font.setPointSize(12)
+        template_title_font.setBold(True)
+        template_title_label.setFont(template_title_font)
+
+        self.template_selector = QComboBox()
+        self.template_selector.addItems(list(TEMPLATES.keys()))
+        self.template_selector.setCurrentText("STANDARD TEMPLATE")
+        self.template_selector.setFixedWidth(260)
+
+        self.template_selector.currentTextChanged.connect(
+            self.on_template_changed
+        )
+
+        self.template_selector.setStyleSheet(
+        """QComboBox { 
+        margin-left: 6px;
+        margin-top: 4px;
+        padding-left: 4px; 
+        }"""
+        )
+
+        template_selector_layout.addWidget(template_title_label)
+        template_selector_layout.addWidget(self.template_selector)
+        template_selector_layout.addStretch()
+        
+        main_layout.addLayout(template_selector_layout)
+
+        markup_layout = QHBoxLayout()
+        markup_label = QLabel("Markup:")
+        markup_layout.addWidget(markup_label)
+
+        self.markup_input = QLineEdit()
+        self.markup_input.setFixedWidth(38)
+        self.markup_input.setAlignment(Qt.AlignCenter)
+
+        percent_label = QHBoxLayout()
+        percent_label = QLabel("%")
+
+        main_layout.addLayout(markup_layout)
+        markup_layout.addWidget(self.markup_input)
+        markup_layout.addWidget(percent_label)
+        markup_layout.addStretch()
+
+        main_layout.addSpacing(2)
+
+        self.on_template_changed(self.template_selector.currentText())
         
         # Ticket Info Section
         ticket_info_label = QLabel("Ticket Info")
@@ -344,6 +398,26 @@ class AddTicketDialog(QDialog):
             self.selected_folder_path = folder
             self.folder_label.setText(f"Folder: {folder}")
             self.folder_label.setStyleSheet("color: black; font-weight: bold;")
+
+    def on_template_changed(self, template_name):
+        template = TEMPLATES[template_name]
+
+        allow_markup = template.get("allow_markup", False)
+        default_markup = template.get("default_markup")
+
+        self.set_markup_enabled(allow_markup, default_markup)
+
+    def set_markup_enabled(self, enabled, default_markup):
+        self.markup_input.setEnabled(enabled)
+
+        if enabled:
+            self.markup_input.setFocusPolicy(Qt.StrongFocus)
+            if default_markup is not None:
+                self.markup_input.setText(str(default_markup))
+        else:
+            self.markup_input.setFocusPolicy(Qt.NoFocus)
+            self.markup_input.clear()
+
     
     def validate_form(self, ticket_data):
         """Validate form data"""
