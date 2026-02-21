@@ -422,6 +422,21 @@ class AddTicketDialog(QDialog):
     def validate_form(self, ticket_data):
         """Validate form data"""
         errors = []
+
+        #Validate markup
+        if self.markup_input.isEnabled():
+            markup_text = self.markup_input.text().strip()
+            
+            if not markup_text:
+                errors.append("Markup: Please enter a valid markup greater than zero")
+            else:
+                try:
+                    markup_val = round(float(markup_text), 2)
+                    if markup_val <= 0:
+                        errors.append("Markup: Markup must be greater than zero")
+                except ValueError:
+                    errors.append("Markup: Must be numeric")
+                    
         
         # Validate date
         parsed_str = parse_string_date(ticket_data["Date"])
@@ -512,15 +527,15 @@ class AddTicketDialog(QDialog):
         try:
             # create and save e-ticket files
             if self.use_eticket_checkbox.isChecked():
-                e_ticket_creator = ETicketCreator(self.selected_folder_path, ticket_data)
+                e_ticket_creator = self.create_ticket_creator(ticket_data)
                 e_ticket_creator.load_ticket()
                 
                 # Save PDF
-                excel_file_path = os.path.join(
-                    self.selected_folder_path,
-                    f"{ticket_data['Job Number']} - {ticket_data['Ticket Number']}.xlsx"
-                )
-                process_ticket(excel_file_path, ticket_data["Date"], ticket_data["Signature"])
+                # excel_file_path = os.path.join(
+                #     self.selected_folder_path,
+                #     f"{ticket_data['Job Number']} - {ticket_data['Ticket Number']}.xlsx"
+                # )
+                # process_ticket(excel_file_path, ticket_data["Date"], ticket_data["Signature"])
 
             # Insert row to ticket listing
             self.excel_manager.insert_ticket(ticket_data)
@@ -531,3 +546,16 @@ class AddTicketDialog(QDialog):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"❌ Failed to save ticket: {str(e)}")
             traceback.print_exc()
+
+    def create_ticket_creator(self, ticket_data):
+        template = TEMPLATES[self.template_selector.currentText()]
+
+        kwargs = {}
+
+        if self.markup_input.isEnabled():
+            markup_text = self.markup_input.text().strip()
+            kwargs["markup"] = round(float(markup_text),2)
+
+        e_ticket_creator = template["eTicket_lambda"](self.selected_folder_path, ticket_data, **kwargs)
+
+        return e_ticket_creator
