@@ -90,14 +90,16 @@ class ExcelManager:
 
         material_row_values = self.dataframe.iloc[header_row, start_col:]
         price_row_values = self.dataframe.iloc[header_row + 4, start_col:]
+        cost_row_values = self.dataframe.iloc[header_row + 5, start_col:]
 
         for col_idx, material in enumerate(material_row_values):
             if pd.notna(material):
                 material_name = str(material).strip()
                 material_price = self._safe_float(price_row_values.iloc[col_idx])
-                material_units = self.dataframe.iloc[header_row - 2, (col_idx+ start_col)]
+                material_cost = self._safe_float(cost_row_values.iloc[col_idx])
+                material_units = self.dataframe.iloc[header_row - 2, (col_idx + start_col)]
                 
-                self.material_map[material_name] = {"Sell Per Unit": material_price, "Units": material_units}
+                self.material_map[material_name] = {"Sell Per Unit": material_price, "Cost Per Unit": material_cost, "Units": material_units}
         
         return
     
@@ -114,9 +116,10 @@ class ExcelManager:
                 
                 material = str(self.dataframe.iloc[header_row, idx_df]).strip()
                 units = self.dataframe.iloc[header_row-2, idx_df]
+                unit_cost = self.dataframe.iloc[header_row+5, idx_df]
                 sell_price = self.dataframe.iloc[header_row+4, idx_df]
 
-                materials_to_add.append({"material": material, "quantity": quantity, "units": units, "sell price": sell_price})
+                materials_to_add.append({"material": material, "quantity": quantity, "units": units, "unit cost": unit_cost, "sell price": sell_price})
         
         return materials_to_add
 
@@ -316,18 +319,21 @@ if __name__ =="__main__":
               'material': '1/4 UNDERLAYMENT 4 X 5"', 
               'quantity': '3',
               'units': 'EA',
+              'unit cost': '39.58',
               'sell price': '53.44',
           }, 
           {
               'material': 'MAPEI QUICK PATCH 25LB', 
               'quantity': '10',
               'units': 'BG',
+              'unit cost': '23.97',
               'sell price': '34.87'
           },
           {
               'material': 'HEPA SANDER#302 & VAC #701', 
               'quantity': '1',
               'units': 'EA',
+              'unit cost': '150',
               'sell price': '150'
           }
      ]

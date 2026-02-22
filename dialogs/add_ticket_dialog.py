@@ -340,6 +340,9 @@ class AddTicketDialog(QDialog):
             sell_price_float = float(self.excel_manager.material_map[material]["Sell Per Unit"])
             sell_price = round(sell_price_float, 2)
 
+            unit_cost_float = float(self.excel_manager.material_map[material]["Cost Per Unit"])
+            unit_cost = round(unit_cost_float, 2)
+
             units = self.excel_manager.material_map[material]["Units"]
             
             # Check if material already exists and update
@@ -353,6 +356,7 @@ class AddTicketDialog(QDialog):
                     "material": material,
                     "quantity": quantity,
                     "units": units,
+                    "unit cost": unit_cost,
                     "sell price": sell_price
                 })
 
@@ -531,11 +535,11 @@ class AddTicketDialog(QDialog):
                 e_ticket_creator.load_ticket()
                 
                 # Save PDF
-                # excel_file_path = os.path.join(
-                #     self.selected_folder_path,
-                #     f"{ticket_data['Job Number']} - {ticket_data['Ticket Number']}.xlsx"
-                # )
-                # process_ticket(excel_file_path, ticket_data["Date"], ticket_data["Signature"])
+                excel_file_path = os.path.join(
+                    self.selected_folder_path,
+                    f"{ticket_data['Job Number']} - {ticket_data['Ticket Number']}.xlsx"
+                )
+                process_ticket(excel_file_path, ticket_data["Date"], ticket_data["Signature"])
 
             # Insert row to ticket listing
             self.excel_manager.insert_ticket(ticket_data)
