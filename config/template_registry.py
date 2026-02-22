@@ -1,5 +1,6 @@
 from data_manager.e_ticket_creator import ETicketCreator
 from data_manager.e_ticket_formats.e_ticket_markup import ETicketMarkup
+from data_manager.e_ticket_formats.e_ticket_material_markup import ETicketMaterialMarkup
 
 TEMPLATES = {
     "STANDARD TEMPLATE": {
@@ -11,5 +12,10 @@ TEMPLATES = {
         "allow_markup": True,
         "default_markup": 10,
         "eTicket_lambda": lambda folder_path, data, **kwargs: ETicketMarkup(folder_path, data, **kwargs)
+        },
+    "MATERIAL MARKUP TEMPLATE": {
+        "allow_markup": True,
+        "default_markup": 10,
+        "eTicket_lambda": lambda folder_path, data, **kwargs: ETicketMaterialMarkup(folder_path, data, **kwargs)
         }
 }
