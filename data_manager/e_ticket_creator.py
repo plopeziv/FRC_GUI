@@ -178,16 +178,28 @@ class ETicketCreator:
            ws[f'I{total_material_row}'] = 0
            return
        
-        start_row = self._find_material_row(ws) + 1
+        start_row = self._find_material_row(ws)
         
         if start_row is None:
             raise ValueError("Material starting row not found")
+        
+        start_row +=1
             
+        last_row = self._insert_line_items(ws, material_object, start_row, price_key="sell price")
+        
+        # Create the material total summary
+        total_material_row = self._find_material_row(ws, "Total Material", column="G")
+        ws[f'I{total_material_row}'] = f'=SUM(I{start_row}:I{last_row})'
+
+    def _insert_line_items(self, ws, object_items, start_row, price_key):
+        if not object_items:
+            return start_row
+        
         # First Material Row
-        ws[f'B{start_row}'] = material_object[0]["quantity"]
-        ws[f'C{start_row}'] = material_object[0]["material"]
-        ws[f'F{start_row}'] = round(self._safe_float(material_object[0]["sell price"]), 2)
-        ws[f'G{start_row}'] = material_object[0]["units"]
+        ws[f'B{start_row}'] = object_items[0]["quantity"]
+        ws[f'C{start_row}'] = object_items[0]["material"]
+        ws[f'F{start_row}'] = round(self._safe_float(object_items[0][price_key]), 2)
+        ws[f'G{start_row}'] = object_items[0]["units"]
         ws[f'I{start_row}'] = f'=B{start_row} * F{start_row}'
         
         ws.row_dimensions[start_row].height = 25
@@ -198,7 +210,7 @@ class ETicketCreator:
         # Any Material After 1
         current_row = start_row
         
-        for material in material_object[1:]:
+        for material in object_items[1:]:
             current_row += 1
             ws.insert_rows(current_row)
             
@@ -206,7 +218,7 @@ class ETicketCreator:
             
             ws[f'B{current_row}'] = material["quantity"]
             ws[f'C{current_row}'] = material["material"]
-            ws[f'F{current_row}'] = round(self._safe_float(material["sell price"]), 2)
+            ws[f'F{current_row}'] = round(self._safe_float(material[price_key]), 2)
             ws[f'G{current_row}'] = material["units"]
             ws[f'I{current_row}'] = f'=B{current_row} * F{current_row}'
             
@@ -214,13 +226,8 @@ class ETicketCreator:
             
             ws.merge_cells(start_row=current_row, end_row=current_row, 
                            start_column=3, end_column=4)
-        
-        
-        # Create the material total summary
-        total_material_row = self._find_material_row(ws, "Total Material", column="G")
-        ws[f'I{total_material_row}'] = f'=SUM(I{start_row}:I{current_row})'
-        
-        
+
+        return current_row
         
     def _calculate_ticket_total(self, ws):
         labor_total_row = self._find_material_row(ws, "Total Hours", column='G')

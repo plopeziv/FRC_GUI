@@ -25,6 +25,9 @@ class ETicketMarkup(ETicketCreator):
         if "F21:G21" in [str(r) for r in ws.merged_cells.ranges]:
             ws.unmerge_cells("F21:G21")
 
+        # correct ticket to present cost instead of sell price
+        self._normalize_labor_to_sell_price()
+
         # run original behavior unchanged
         super()._insert_labor(ws)
         
@@ -64,7 +67,7 @@ class ETicketMarkup(ETicketCreator):
         
         start_row += 1
 
-        last_material_row = self._insert_line_items(ws, material_object, start_row)            
+        last_material_row = self._insert_line_items(ws, material_object, start_row, "unit cost")            
         
         # Create the material total summary
         total_material_row = self._find_material_row(ws, "Subtotal Material", column="G")
@@ -95,7 +98,7 @@ class ETicketMarkup(ETicketCreator):
         
         start_row += 1
 
-        last_row = self._insert_line_items(ws, equipment_object, start_row) 
+        last_row = self._insert_line_items(ws, equipment_object, start_row, "unit cost") 
 
         # Create the equipment total summary
         total_equipment_row = self._find_material_row(ws, "Subtotal Equipment", column="G")
@@ -114,48 +117,13 @@ class ETicketMarkup(ETicketCreator):
         ws.merge_cells(start_row=total_equipment_row+2, end_row=total_equipment_row+2,
                        start_column=6, end_column=7)
 
-        
-    
-        
-    def _insert_line_items(self, ws, object_items, start_row):
-        if not object_items:
-            return start_row
-        
-        # First Material Row
-        ws[f'B{start_row}'] = object_items[0]["quantity"]
-        ws[f'C{start_row}'] = object_items[0]["material"]
-        ws[f'F{start_row}'] = round(self._safe_float(object_items[0]["sell price"]), 2)
-        ws[f'G{start_row}'] = object_items[0]["units"]
-        ws[f'I{start_row}'] = f'=B{start_row} * F{start_row}'
-        
-        ws.row_dimensions[start_row].height = 25
-        
-        ws.merge_cells(start_row=start_row, end_row=start_row, 
-                       start_column=3, end_column=4)
-      
-        # Any Material After 1
-        current_row = start_row
-        
-        for material in object_items[1:]:
-            current_row += 1
-            ws.insert_rows(current_row)
-            
-            self._copy_and_insert_row(ws, start_row, current_row)
-            
-            ws[f'B{current_row}'] = material["quantity"]
-            ws[f'C{current_row}'] = material["material"]
-            ws[f'F{current_row}'] = round(self._safe_float(material["sell price"]), 2)
-            ws[f'G{current_row}'] = material["units"]
-            ws[f'I{current_row}'] = f'=B{current_row} * F{current_row}'
-            
-            ws.row_dimensions[current_row].height = 25
-            
-            ws.merge_cells(start_row=current_row, end_row=current_row, 
-                           start_column=3, end_column=4)
+    def _normalize_labor_to_sell_price(self):
+        if self.markup:
+            correction_factor = 1 +(self.markup / 100)
 
-        return current_row
-        
-        
+            for labor_type, labor_object in self.incoming_ticket["Labor"].items():
+                sell_rate = float(labor_object["rate"])
+                labor_object["rate"] = round(sell_rate/correction_factor, 2)
 
     def _calculate_ticket_total(self, ws):
         labor_total_row = self._find_material_row(ws, "Labor Markup Total", column='F')
@@ -197,24 +165,28 @@ if __name__ =="__main__":
               'material': 'MAPEI PLANIPREP SC 10LB BAG', 
               'quantity': '3',
               'units': 'BG',
+              'unit cost': '23.55',
               'sell price': '34.35'
           }, 
           {
               'material': 'MAPEI QUICK PATCH 25LB', 
               'quantity': '10',
               'units': 'BG',
+              'unit cost': '23.97',
               'sell price': '34.87'
           },
           {
               'material': 'HEPA SANDER#302 & VAC #701', 
               'quantity': '2',
               'units': 'EA',
+              'unit cost': '150',
               'sell price': '150'
           },
           {
               'material': 'TURBO STRIPPER # 203', 
               'quantity': '1',
               'units': 'EA',
+              'unit cost': '315',
               'sell price': '315'
           }
      ]
