@@ -14,7 +14,7 @@ class ETicketMarkup(ETicketCreator): # pylint: disable=too-few-public-methods
         markup=10,
     ):
         super().__init__(file_path, incoming_ticket, template_name)
-        self.markup = markup
+        self.markup = self._validate_markup(markup)
 
     def _insert_labor(self, ws):
         # remove known blocking merge from template

@@ -18,7 +18,7 @@ class ETicketMaterialMarkup(ETicketCreator):
         markup= 10
     ):
         super().__init__(file_path, incoming_ticket, template_name)
-        self.markup = markup
+        self.markup = self._validate_markup(markup)
 
     def _insert_materials(self, ws):
         

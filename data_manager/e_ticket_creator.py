@@ -79,6 +79,16 @@ class ETicketCreator:
             
         return engine
     
+    @staticmethod
+    def _validate_markup(markup):
+        if isinstance(markup, bool) or not isinstance(markup, (int, float)):
+            raise TypeError("Markup must be a numeric value.")
+
+        if markup < 0:
+            raise ValueError("Markup must be greater than or equal to 0.")
+
+        return markup
+    
     def _insert_job_info(self, ws):
         from datetime import datetime
         import pandas as pd
