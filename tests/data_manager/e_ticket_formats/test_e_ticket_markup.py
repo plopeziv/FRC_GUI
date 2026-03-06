@@ -1,5 +1,4 @@
 import pytest
-from unittest.mock import Mock
 
 from data_manager.e_ticket_formats.e_ticket_markup import ETicketMarkup
 from tests.stubs.ticket_data_stub import get_ticket_data_stub
@@ -13,6 +12,20 @@ def e_ticket_markup_obj():
 
 def test_placeholder_e_ticket_markup_imports():
     assert ETicketMarkup is not None
+
+
+class TestETicketMarkupInit:
+    def test_init_rejects_negative_markup(self):
+        ticket_data = get_ticket_data_stub()
+
+        with pytest.raises(ValueError):
+            ETicketMarkup(file_path=".", incoming_ticket=ticket_data, markup=-1)
+
+    def test_init_rejects_non_numeric_markup(self):
+        ticket_data = get_ticket_data_stub()
+
+        with pytest.raises(TypeError):
+            ETicketMarkup(file_path=".", incoming_ticket=ticket_data, markup="ten")
 
 
 class TestNormalizeLaborToSellPrice:

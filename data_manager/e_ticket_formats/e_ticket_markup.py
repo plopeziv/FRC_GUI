@@ -47,17 +47,9 @@ class ETicketMarkup(ETicketCreator): # pylint: disable=too-few-public-methods
 
         grouped_materials = self.incoming_ticket["Materials"]
 
-        excluded_equipment = EXCLUDED_EQUIPMENT
 
         # ORGANIZE MATERIALS INTO EQUIPMENT AND MATERIALS
-        equipment_object = []
-        material_object = []
-
-        for material in grouped_materials:
-            if material["material"] in excluded_equipment:
-                equipment_object.append(material)
-            else:
-                material_object.append(material)
+        material_object, equipment_object = self._split_materials_and_equipment(grouped_materials, EXCLUDED_EQUIPMENT)
 
         # INSERT MATERIALS
         start_row = self._find_material_row(ws, "Material Used", column="A")

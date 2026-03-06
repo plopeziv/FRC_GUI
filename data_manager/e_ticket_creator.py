@@ -238,6 +238,20 @@ class ETicketCreator:
                            start_column=3, end_column=4)
 
         return current_row
+    
+    @staticmethod
+    def _split_materials_and_equipment(grouped_materials, excluded_equipment):
+        # ORGANIZE MATERIALS INTO EQUIPMENT AND MATERIALS
+        equipment_object = []
+        material_object = []
+
+        for material in grouped_materials:
+            if material["material"] in excluded_equipment:
+                equipment_object.append(material)
+            else:
+                material_object.append(material)
+
+        return material_object, equipment_object
         
     def _calculate_ticket_total(self, ws):
         labor_total_row = self._find_material_row(ws, "Total Hours", column='G')
