@@ -6,9 +6,6 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 from data_manager.e_ticket_creator import ETicketCreator
 from config.equipment_lists import EXCLUDED_EQUIPMENT
 
-# from data_manager.e_ticket_creator import ETicketCreator
-# from config.equipment_lists import EXCLUDED_EQUIPMENT
-
 class ETicketMaterialMarkup(ETicketCreator):
     def __init__(
         self, 
