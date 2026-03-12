@@ -52,16 +52,7 @@ class ETicketMarkup(ETicketCreator): # pylint: disable=too-few-public-methods
         material_object, equipment_object = self._split_materials_and_equipment(grouped_materials, EXCLUDED_EQUIPMENT)
 
         # INSERT MATERIALS
-        start_row = self._find_material_row(ws, "Material Used", column="A")
-
-        if start_row is None:
-            raise ValueError("Material starting row not found")
-
-        start_row += 1
-
-        last_material_row = self._insert_line_items(
-            ws, material_object, start_row, "unit cost"
-        )
+        start_row, last_material_row = self._insert_items_at_anchor(ws, material_object, "Material Used", "A", "unit cost")
 
         # Create the material total summary
         total_material_row = self._find_material_row(

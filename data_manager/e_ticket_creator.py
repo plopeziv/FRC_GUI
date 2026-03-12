@@ -187,15 +187,8 @@ class ETicketCreator:
            total_material_row = self._find_material_row(ws, "Total Material", column="G")
            ws[f'I{total_material_row}'] = 0
            return
-       
-        start_row = self._find_material_row(ws)
-        
-        if start_row is None:
-            raise ValueError("Material starting row not found")
-        
-        start_row +=1
-            
-        last_row = self._insert_line_items(ws, material_object, start_row, price_key="sell price")
+                   
+        start_row, last_row = self._insert_items_at_anchor(ws, material_object, anchor_search_term="Material Used", anchor_column="A", price_key="sell price")
         
         # Create the material total summary
         total_material_row = self._find_material_row(ws, "Total Material", column="G")
@@ -238,6 +231,17 @@ class ETicketCreator:
                            start_column=3, end_column=4)
 
         return current_row
+    
+    def _insert_items_at_anchor(self, ws, items, anchor_search_term, anchor_column, price_key):
+        start_row = self._find_material_row(ws, anchor_search_term, column=anchor_column)
+        
+        if start_row is None:
+            raise ValueError(f"{anchor_search_term} starting row not found")
+        
+        start_row += 1
+        
+        last_row = self._insert_line_items(ws, items, start_row, price_key)
+        return start_row, last_row
     
     @staticmethod
     def _split_materials_and_equipment(grouped_materials, excluded_equipment):
