@@ -1,5 +1,6 @@
 import pandas as pd
 from data_manager.excel_manager import ExcelManager
+from utils.date_utils import parse_string_date;
 # from excel_manager import ExcelManager
 
 class TicketDataService:
@@ -84,7 +85,7 @@ class TicketDataService:
         
         df = df.drop(columns=df.loc[:, "Material Sell":"Total Cost"].columns)
 
-        df["Date"] = pd.to_datetime(df["Date"], errors="coerce").dt.strftime("%m/%d/%Y")
+        df["Date"] = df["Date"].apply(parse_string_date).dt.strftime("%m/%d/%Y")
 
         df = df[df.index.notnull()]
         
