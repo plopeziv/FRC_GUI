@@ -4,6 +4,9 @@ def parse_string_date(date):
     if not date:
         return None
     
+    if hasattr(date, "strftime"):
+        return date
+    
     date = str(date).strip()
     
     formats = (

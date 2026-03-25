@@ -278,7 +278,7 @@ class AddTicketDialog(QDialog):
 
             #Ticket Info
             self.ticket_number.setText(self.form_ticket_data["Ticket Number"])
-            self.date_input.setText(self.form_ticket_data["Date"])
+            self.date_input.setText(str(self.form_ticket_data["Date"]))
 
             self.signature.setCurrentText(str(self.form_ticket_data["Signature"]))
             self.ticket_type.setCurrentText(str(self.form_ticket_data["Type"]))
