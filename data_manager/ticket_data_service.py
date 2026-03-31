@@ -85,7 +85,7 @@ class TicketDataService:
         
         df = df.drop(columns=df.loc[:, "Material Sell":"Total Cost"].columns)
 
-        df["Date"] = df["Date"].apply(parse_string_date).dt.strftime("%m/%d/%Y")
+        df["Date"] = pd.to_datetime(df["Date"].apply(parse_string_date), errors="coerce").dt.strftime("%m/%d/%Y")
 
         df = df[df.index.notnull()]
         
