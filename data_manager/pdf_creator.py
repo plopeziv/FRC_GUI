@@ -144,7 +144,7 @@ def find_ticket_file(job_folder, ticket_number):
             return matches[0]
         
     raise FileNotFoundError(
-        f"No pdf found for Ticket {ticket_number}"
+        f"No pdf found for Ticket {ticket_number} in {job_folder}"
         )
 
 if __name__ == "__main__":
